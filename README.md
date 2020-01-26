@@ -6,7 +6,7 @@ addon allows you to save and load presets for that boot animation animation
 colours and model so that you can easily swap out the look of your Xbox in 
 seconds. It (will soon) even comes bundled with several presets out of the box.
 
-# This project is still a work in progress and should not be usewd yet!
+# This project is still a work in progress and should not be used yet!
 
 # PLEASE NOTE
 If iND-BiOS cannot find any of the custom dashboard paths you have set up. It
