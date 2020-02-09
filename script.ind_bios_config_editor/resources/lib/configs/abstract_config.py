@@ -9,26 +9,28 @@ class AbstractConfig(ConfigParser.RawConfigParser, object):
 
     def __init__(self, max_line_length=None, quote_char_if_whitespace=None, *args, **kwargs):
         fields = self._get_fields()
-        self._field_validators = {section: {field.field_name: field for field in fields[section]} for section in fields}
-        defaults_dict = self.defaults()
+        self._validators = {section: {field.field_name: field.validator for field in fields[section]}
+                            for section in fields}
+        self._defaults = {section: {field.field_name: field.default_value for field in fields[section]}
+                          for section in fields}
+        self._format_converters = {section: {field.field_name: field.format_converter for field in fields[section]}
+                                   for section in fields}
 
         self._max_line_length = max_line_length
         self._quote_char_if_whitespace = quote_char_if_whitespace
 
         super(AbstractConfig, self).__init__(*args, **kwargs)
 
-        for section in defaults_dict:
+        for section in self._defaults:
             self.add_section(section)
-            for field in defaults_dict[section]:
-                self.set(section, field, defaults_dict[section][field])
+            for field in self._defaults[section]:
+                self.set(section, field, self._defaults[section][field])
 
     def get_default_section(self):
         return "CONFIG"
 
     def defaults(self):
-        return {section: {key: self._field_validators[section][key].default for key in self._field_validators[section]}
-                for
-                section in self._field_validators}
+        return self._defaults
 
     @abstractmethod
     def _get_fields(self):
