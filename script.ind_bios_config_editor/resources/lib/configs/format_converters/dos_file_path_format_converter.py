@@ -1,7 +1,7 @@
-from .abstract_converter import AbstractConverter
+from .abstract_format_converter import AbstractFormatConverter
 
 
-class DosFilePath(AbstractConverter):
+class DosFilePathFormatConverter(AbstractFormatConverter):
     _DRIVE_PARTITION_MAPPING = {
         "C": 2,
         "E": 1,

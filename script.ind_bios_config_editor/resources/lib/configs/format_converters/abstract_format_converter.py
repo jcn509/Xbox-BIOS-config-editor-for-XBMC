@@ -1,7 +1,7 @@
 from abc import ABCMeta, abstractmethod
 
 
-class AbstractConverter(object):
+class AbstractFormatConverter(object):
     __metaclass__ = ABCMeta
 
     @abstractmethod

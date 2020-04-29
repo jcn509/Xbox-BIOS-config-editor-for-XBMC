@@ -1,28 +1,17 @@
-class ConfigField(object):
-    __slots__ = "_default_value", "_field_name", "_validator", "_format_converter"
+from collections import namedtuple
 
-    def __init__(self, field_name, default_value, validator, format_converter):
-        self._default_value = default_value
-        self._field_name = field_name
-        self._validator = validator
-        self._format_converter = format_converter
+_CONFIG_FIELDS = ('field_name', 'default_value',)
 
-    # default_value should be read only
-    @property
-    def default_value(self):
-        return self._default_value
+BooleanField = namedtuple("BooleanField", _CONFIG_FIELDS)
+IntegerField = namedtuple("IntegerField", _CONFIG_FIELDS + ("min_value", "max_value"))
+DiscreteField = namedtuple("BooleanField", _CONFIG_FIELDS + ("values", ))
+StringField = namedtuple("ConfigField", _CONFIG_FIELDS + ("regex", ))
 
-    # field_name should be read only
-    @property
-    def field_name(self):
-        return self._field_name
+_FILE_PATH_DEVICES = namedtuple("FilePathDevices", ("HDD", "DVD"))("Harddisk0\\\\Partition[1267]", "CdRom0")
+_FILE_PATH_FIELDS = _CONFIG_FIELDS + ("file_extension", )
+HDDFilePathField = namedtuple("HDDFilePathField", _FILE_PATH_FIELDS)
+OptionalHDDFilePathField = namedtuple("OptionalHDDFilePathField", _FILE_PATH_FIELDS)
+DVDFilePathField = namedtuple("DVDFilePathField", _FILE_PATH_FIELDS)
 
-    # validator should be read only
-    @property
-    def validator(self):
-        return self._validator
+HexColourField = namedtuple("HexColourField", _CONFIG_FIELDS + ("with_alpha_channel",))
 
-    # format_converter should be read only
-    @property
-    def format_converter(self):
-        return self._format_converter
