@@ -7,7 +7,7 @@ class DiscreteFormatConverter(AbstractFormatConverter):
         self._values = tuple(values)
 
     def convert_to_config_file_format(self, value):
-        return self._values.index(value)
+        return str(self._values.index(value))
 
     def convert_to_xbmc_control_format(self, value):
         return self._values[int(value)]

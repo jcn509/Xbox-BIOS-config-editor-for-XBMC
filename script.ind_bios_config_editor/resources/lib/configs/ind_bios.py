@@ -10,12 +10,12 @@ class IndBiosConfig(AbstractConfig):
         return IND_BIOS_FIELDS
 
     def _get_true_if_non_default(self):
-        return {self.get_default_section(): {
+        return {
             "FOG1CUSTOM": ["FOG1COLOR"],
             "FOG2CUSTOM": ["FOG2COLOR"]
-        }}
+        }
 
     def _get_true_if_non_zero(self):
-        return {self.get_default_section(): {
+        return {
             "SKEWEN": ["XSKEWLOGO", "YSKEWLOGO"]
-        }}
+        }

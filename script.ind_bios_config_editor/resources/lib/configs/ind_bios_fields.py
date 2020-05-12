@@ -72,7 +72,7 @@ IND_BIOS_FIELDS = (
     # MS logo
     BooleanField("SHOWMSEN", True),
     BooleanField("MSLOGOTRANSEN", False),
-    BooleanField("MSLOGOTRANSCOLOR", False),
+    HexColourField("MSLOGOTRANSCOLOR", "0xff00ff", False),
     BooleanField("NOLIGHTEN", False),
     OptionalHDDFilePathField("CUSTOMLOGO", "C:\\mslogo.bmp", "bmp"),
     

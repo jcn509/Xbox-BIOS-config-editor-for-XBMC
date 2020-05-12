@@ -1,6 +1,9 @@
 from abc import ABCMeta, abstractmethod
 import re
+from ..config_errors import ConfigFieldValueError
 
+def _raise_error(message):
+    raise ConfigFieldValueError(message)
 
 class AbstractValidator(object):
     __metaclass__ = ABCMeta
@@ -17,16 +20,19 @@ class AbstractValidator(object):
 class DiscreteValidator(AbstractValidator):
     __slots__ = "_values"
 
-    def __init__(self, values):
-        self._values = [str(x) for x in values]
+    def __init__(self, xbmc_format_values, config_format_values = None):
+        self._xbmc_format_values = [str(x) for x in xbmc_format_values]
+        if config_format_values is None:
+            config_format_values = [str(x) for x in range(len(xbmc_format_values))]
+        self._config_format_values = config_format_values
 
     def validate_in_config_format(self, value):
-        if value not in self._values:
-            raise ValueError(value + " is not valid value must be one of " + str(self._values))
+        if value not in self._config_format_values:
+            _raise_error(value + " is not valid value must be one of " + str(self._config_format_values))
 
     def validate_in_xbmc_format(self, value):
-        if value not in self._values:
-            raise ValueError(value + " is not valid value must be one of " + str(self._values))
+        if value not in self._xbmc_format_values:
+            _raise_error(value + " is not valid value must be one of " + str(self._xbmc_format_values))
 
 class IntegerValidator(AbstractValidator):
     __slots__ = "_min_value", "_max_value"
@@ -36,16 +42,22 @@ class IntegerValidator(AbstractValidator):
         self._max_value = max_value
 
     def validate_in_config_format(self, value):
-        if value < self._min_value or value > self._max_value:
-            raise ValueError(value + " is not valid, value must be >= " + str(self._min_value) + " and <= " + str(self._max_value))
+        self.validate_in_xbmc_format(int(value))
 
     def validate_in_xbmc_format(self, value):
-        self.validate_in_config_format(int(value))
+        if value < self._min_value or value > self._max_value:
+            _raise_error(str(value) + " is not valid, value must be >= " + str(self._min_value) + " and <= " + str(self._max_value))
 
 
-class BooleanValidator(IntegerValidator):
-    def __init__(self):
-        super(BooleanValidator, self).__init__(0, 1)
+
+class BooleanValidator(AbstractValidator):
+    def validate_in_config_format(self, value):
+        if value not in ('0', '1'):
+            _raise_error(str(value) + " is not valid, value must be 0 or 1")
+
+    def validate_in_xbmc_format(self, value):
+        if value not in (True, False):
+            _raise_error(str(value) + " is not valid, value must be True or False")
 
 
 class RegexMatchPatternValidator(AbstractValidator):
@@ -54,7 +66,7 @@ class RegexMatchPatternValidator(AbstractValidator):
     def __init__(self, xbmc_regex_pattern, config_regex_pattern = None, error_message = None):
         self._xbmc_regex_pattern = re.compile(xbmc_regex_pattern)
         self._error_message = error_message
-        if config_regex_pattern:
+        if config_regex_pattern is not None:
             self._config_regex_pattern = re.compile(config_regex_pattern)
         else:
             self._config_regex_pattern = self._xbmc_regex_pattern
@@ -64,7 +76,7 @@ class RegexMatchPatternValidator(AbstractValidator):
             error_message = self._error_message
             if error_message is None:
                 error_message = "must match pattern: " + regex.pattern
-            raise ValueError(value + " is invalid. " + error_message)
+            _raise_error(value + " is invalid. " + error_message)
 
     def validate_in_config_format(self, value):
         self.validate_against_regex(value, self._config_regex_pattern)
@@ -108,7 +120,7 @@ class OptionalHDDFilePathValidator(HDDFilePathValidator):
         if value != '0':
             super(OptionalHDDFilePathValidator, self).validate_in_config_format(value)
     
-    def validate_in_config_format(self, value):
-        if value != None:
-            super(OptionalHDDFilePathValidator, self).validate_in_config_format(value)
+    def validate_in_xbmc_format(self, value):
+        if value is not None:
+            super(OptionalHDDFilePathValidator, self).validate_in_xbmc_format(value)
 

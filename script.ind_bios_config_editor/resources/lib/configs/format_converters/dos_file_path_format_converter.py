@@ -23,7 +23,7 @@ class DosFilePathFormatConverter(AbstractFormatConverter):
         return value
 
     def convert_to_xbmc_control_format(self, value):
-        if value.startsWith(self._FILE_PATH_PREAMBLE_HDD):
+        if value.startswith(self._FILE_PATH_PREAMBLE_HDD):
             value = value.replace(self._FILE_PATH_PREAMBLE_HDD, "")
             partition_number = int(value[0])
             drive_letter = None
@@ -32,7 +32,7 @@ class DosFilePathFormatConverter(AbstractFormatConverter):
                     drive_letter = letter
                     break
             value = drive_letter + ":" + value[1:]
-        elif value.startsWith(self._FILE_PATH_PREAMBLE_DVD):
+        elif value.startswith(self._FILE_PATH_PREAMBLE_DVD):
             value = "D:" + value.replace(self._FILE_PATH_PREAMBLE_DVD, "")[1:]
 
         return value
