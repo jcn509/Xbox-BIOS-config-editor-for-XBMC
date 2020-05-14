@@ -11,19 +11,26 @@ class Advanced(AbstractIndBiosTab):
         self._place_and_link(
             "USEALLMEMORY",
             controls.RadioButton("Use 128mb of Ram (if Available)"),
-            0, 0,
-            columnspan=2
+            0,
+            0,
+            columnspan=2,
         ),
         self._place_and_link(
             "DISABLEDM",
             controls.RadioButton("Disable debug monitor"),
-            1, 0,
-            columnspan=2
+            1,
+            0,
+            columnspan=2,
         )
-        self._place_label("Change MAC Address Note: 00:00:00:00:00:00 = From eeprom", 2, 0)
+        self._place_label(
+            "Change MAC Address Note: 00:00:00:00:00:00 = From eeprom", 2, 0
+        )
         self._place_and_link(
             "MACADDR",
-            controls.FakeEdit(default="00:00:00:00:00:00",
-                              heading="Change MAC Address Note: 00:00:00:00:00:00 = From eeprom"),
-            2, 1
+            controls.FakeEdit(
+                default="00:00:00:00:00:00",
+                heading="Change MAC Address Note: 00:00:00:00:00:00 = From eeprom",
+            ),
+            2,
+            1,
         ),

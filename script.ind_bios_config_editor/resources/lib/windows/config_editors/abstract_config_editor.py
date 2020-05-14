@@ -60,9 +60,11 @@ class AbstractConfigEditor(pyxbmct.AddonDialogWindow):
         close = True
         if self._unsaved_changes:
             dialog = xbmcgui.Dialog()
-            close = dialog.yesno("Unsaved Changes!",
-                                 "You have unsaved changes!",
-                                 "Are you sure you want to close this app?")
+            close = dialog.yesno(
+                "Unsaved Changes!",
+                "You have unsaved changes!",
+                "Are you sure you want to close this app?",
+            )
             del dialog
 
         if close:
@@ -70,9 +72,11 @@ class AbstractConfigEditor(pyxbmct.AddonDialogWindow):
 
     def save_config(self):
         dialog = xbmcgui.Dialog()
-        save = dialog.yesno("Save Changes?",
-                            "Are you sure you want to save your changes?",
-                            "This WILL overwrite your existing config!")
+        save = dialog.yesno(
+            "Save Changes?",
+            "Are you sure you want to save your changes?",
+            "This WILL overwrite your existing config!",
+        )
         del dialog
         if save:
             self._unsaved_changes = False
@@ -84,7 +88,9 @@ class AbstractConfigEditor(pyxbmct.AddonDialogWindow):
             self._tab_groups[tab].reset_to_default()
 
     def _reset_to_default_button_clicked(self):
-        reset_to_default_window = ResetToDefault(self._tab_groups.keys(), self.reset_to_default)
+        reset_to_default_window = ResetToDefault(
+            self._tab_groups.keys(), self.reset_to_default
+        )
         reset_to_default_window.doModal()
         del reset_to_default_window
 
@@ -98,20 +104,24 @@ class AbstractConfigEditor(pyxbmct.AddonDialogWindow):
             tab_group = form_config[tab]["tab"](self._config)
             self.connect(tab_group, self._change_made_in_tab)
             self._tab_groups[tab] = tab_group
-            self.placeControl(tab_group, 1, 0, columnspan=self.NUM_COLUMNS,
-                              rowspan=self.NUM_ROWS - 2)
+            self.placeControl(
+                tab_group, 1, 0, columnspan=self.NUM_COLUMNS, rowspan=self.NUM_ROWS - 2
+            )
             self._hide_tab(tab)
 
         self._create_tab_menu_bar(form_config)
 
     def _create_tab_menu_bar(self, form_config):
         tab_group = pyxbmct.Group(1, len(self._tab_groups))
-        self.placeControl(tab_group, 0, 0, columnspan=self.NUM_COLUMNS,
-                          pad_x=0, pad_y=0)
+        self.placeControl(
+            tab_group, 0, 0, columnspan=self.NUM_COLUMNS, pad_x=0, pad_y=0
+        )
         self._tab_menu_buttons = {}
 
         for col, title in enumerate(self._tab_groups):
-            button = controls.ButtonWithIcon(title, form_config[title]["icon"], icon_pad_x=9)
+            button = controls.ButtonWithIcon(
+                title, form_config[title]["icon"], icon_pad_x=9
+            )
             self._tab_menu_buttons[title] = button
             tab_group.placeControl(button, 0, col, pad_x=0, pad_y=0)
             self.connect(button, lambda tab=title: self.switch_tab(tab))
@@ -180,11 +190,15 @@ class AbstractConfigEditor(pyxbmct.AddonDialogWindow):
 
             for button_title in self._tab_menu_buttons:
                 button = self._tab_menu_buttons[button_title].get_button()
-                button.controlDown(self._tab_menu_buttons_control_down[tab_name][button_title])
+                button.controlDown(
+                    self._tab_menu_buttons_control_down[tab_name][button_title]
+                )
 
             for button_title in self._menu_bar_buttons:
                 button = self._menu_bar_buttons[button_title].get_button()
-                button.controlUp(self._menu_bar_buttons_control_up[tab_name][button_title])
+                button.controlUp(
+                    self._menu_bar_buttons_control_up[tab_name][button_title]
+                )
 
             self._tab_menu_buttons[tab_name].setEnabled(False)
 
@@ -199,17 +213,25 @@ class AbstractConfigEditor(pyxbmct.AddonDialogWindow):
         self.placeControl(menu_group, row, 0, columnspan=num_cols, pad_x=0, pad_y=0)
 
         icon_pad_x = 7
-        self._save_button = controls.ButtonWithIcon("Save Config", "save_item.png", icon_pad_x=icon_pad_x)
+        self._save_button = controls.ButtonWithIcon(
+            "Save Config", "save_item.png", icon_pad_x=icon_pad_x
+        )
         menu_group.placeControl(self._save_button, 0, 0)
         self.connect(self._save_button, self.save_config)
         self._menu_bar_buttons["Save Config"] = self._save_button
 
-        self._reset_button = controls.ButtonWithIcon("Reset To Default", "arrow_repeat.png", icon_pad_x=icon_pad_x)
+        self._reset_button = controls.ButtonWithIcon(
+            "Reset To Default", "arrow_repeat.png", icon_pad_x=icon_pad_x
+        )
         menu_group.placeControl(self._reset_button, 0, 1)
         self.connect(self._reset_button, self._reset_to_default_button_clicked)
         self._menu_bar_buttons["Reset To Default"] = self._reset_button
 
     def setAnimation(self, control):
         # Set fade animation for all add-on window controls
-        control.setAnimations([('WindowOpen', 'effect=fade start=0 end=100 time=500',),
-                               ('WindowClose', 'effect=fade start=100 end=0 time=500',)])
+        control.setAnimations(
+            [
+                ("WindowOpen", "effect=fade start=0 end=100 time=500",),
+                ("WindowClose", "effect=fade start=100 end=0 time=500",),
+            ]
+        )

@@ -4,7 +4,7 @@ import pyxbmct
 # Enable or disable Estuary-based design explicitly
 pyxbmct.skin.estuary = True
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     window = windows.config_editors.IndBiosConfigEditor("F:\\test_ind_bios.cfg")
     window.doModal()
     # Destroy the instance explicitly because

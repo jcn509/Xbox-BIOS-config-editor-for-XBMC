@@ -2,7 +2,6 @@ from .abstract_format_converter import AbstractFormatConverter
 
 
 class DiscreteFormatConverter(AbstractFormatConverter):
-
     def __init__(self, values):
         self._values = tuple(values)
 

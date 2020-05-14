@@ -1,4 +1,13 @@
-from .config_field import BooleanField, IntegerField, DiscreteField, StringField, HDDFilePathField, OptionalHDDFilePathField, DVDFilePathField, HexColourField
+from .config_field import (
+    BooleanField,
+    IntegerField,
+    DiscreteField,
+    StringField,
+    HDDFilePathField,
+    OptionalHDDFilePathField,
+    DVDFilePathField,
+    HexColourField,
+)
 
 IND_BIOS_FIELDS = (
     BooleanField("AUTOLOADDVD", True),
@@ -9,10 +18,11 @@ IND_BIOS_FIELDS = (
     IntegerField("FANSPEED", 10, 10, 50),
     StringField("LEDPATTERN", "GGGG", r"^[GROBN]{4}$"),
     BooleanField("USEALLMEMORY", False),
-    StringField("MACADDR", "00:00:00:00:00:00", r"^([0-9a-fA-F]{2}:){5}[0-9a-fA-F]{2}$"),
+    StringField(
+        "MACADDR", "00:00:00:00:00:00", r"^([0-9a-fA-F]{2}:){5}[0-9a-fA-F]{2}$"
+    ),
     BooleanField("DISABLEDM", True),
     BooleanField("IFILTER", True),
-
     # Boot animation
     BooleanField("480P", False),
     IntegerField("CAMERAVIEW", -1, -1, 15),
@@ -22,7 +32,6 @@ IND_BIOS_FIELDS = (
     HexColourField("SCENECOLOR3", "0xFF35FF1A", True),
     BooleanField("SHOWFLUB", True),
     BooleanField("NOSOUND", False),
-
     # Blob
     HexColourField("BLOBCOLOR", "0x40FF27", False),
     IntegerField("BLOBRADI", 23, 0, 100),
@@ -33,7 +42,6 @@ IND_BIOS_FIELDS = (
     BooleanField("SPIKEYBLOB", False),
     OptionalHDDFilePathField("CUSTOMBLOB", "C:\\flubber.x", "x"),
     BooleanField("WIREFRAMEBLOB", False),
-
     # Fog
     BooleanField("FOGON", True),
     # Double check this section
@@ -42,18 +50,15 @@ IND_BIOS_FIELDS = (
     BooleanField("FOG1CUSTOM", False),
     HexColourField("FOG2COLOR", "0xFF35FF1A", True),
     BooleanField("FOG2CUSTOM", False),
-
     # Boot animation glow
     HexColourField("GLOWCOLOR", "0xA0FF60", False),
     HexColourField("IOGLOWCOLOR", "0xA0FF60", False),
     BooleanField("NOFLUBBG", False),
-    
     # X screen
     BooleanField("SHOWXEN", True),
     HexColourField("BGCOLOR", "0xFFFFFF", False),
     BooleanField("SKEWEN", True),
     BooleanField("TMS", True),
-    
     # X
     BooleanField("IND3D", True),
     HexColourField("LIPCOLOR", "0x000100", False),
@@ -68,25 +73,22 @@ IND_BIOS_FIELDS = (
     IntegerField("YSKEWXLOGO", 0, -100, 100),
     IntegerField("XLOGOSCALE", 100, 0, 100),
     OptionalHDDFilePathField("CUSTOMX", "C:\\xlogo.x", "x"),
-
     # MS logo
     BooleanField("SHOWMSEN", True),
     BooleanField("MSLOGOTRANSEN", False),
     HexColourField("MSLOGOTRANSCOLOR", "0xff00ff", False),
     BooleanField("NOLIGHTEN", False),
     OptionalHDDFilePathField("CUSTOMLOGO", "C:\\mslogo.bmp", "bmp"),
-    
     # Xbox text
     IntegerField("XSKEWTEXT", 0, -100, 100),
     IntegerField("YSKEWTEXT", 0, -100, 100),
     IntegerField("TEXTSCALE", 100, 0, 100),
     OptionalHDDFilePathField("CUSTOMTEXT", "C:\\text.x", "x"),
     BooleanField("INTRO", True),
-
     # Boot order
     HDDFilePathField("DASH1", "C:\\evoxdash.xbe", "xbe"),
     HDDFilePathField("DASH2", "C:\\nexgen.xbe", "xbe"),
     HDDFilePathField("DASH3", "C:\\avalaunch.xbe", "xbe"),
     DVDFilePathField("DEFAULTXBE", "D:\\default.xbe", "xbe"),
-    BooleanField("USEXBX", False)
+    BooleanField("USEXBX", False),
 )

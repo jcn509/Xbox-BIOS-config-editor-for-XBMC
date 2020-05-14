@@ -2,19 +2,13 @@ from .abstract_format_converter import AbstractFormatConverter
 
 
 class DosFilePathFormatConverter(AbstractFormatConverter):
-    _DRIVE_PARTITION_MAPPING = {
-        "C": 2,
-        "E": 1,
-        "F": 6,
-        "G": 7
-    }
+    _DRIVE_PARTITION_MAPPING = {"C": 2, "E": 1, "F": 6, "G": 7}
     _FILE_PATH_PREAMBLE_HDD = "\\Device\\Harddisk0\\Partition"
     _FILE_PATH_PREAMBLE_DVD = "\\Device\\CdRom0"
 
     def convert_to_config_file_format(self, value):
         drive_letter = value[0]
         if drive_letter in self._DRIVE_PARTITION_MAPPING.keys():
-            drive_letter = value[0]
             partition_number = self._DRIVE_PARTITION_MAPPING[drive_letter]
             value = self._FILE_PATH_PREAMBLE_HDD + str(partition_number) + value[2:]
         elif drive_letter == "D":
@@ -33,6 +27,6 @@ class DosFilePathFormatConverter(AbstractFormatConverter):
                     break
             value = drive_letter + ":" + value[1:]
         elif value.startswith(self._FILE_PATH_PREAMBLE_DVD):
-            value = "D:" + value.replace(self._FILE_PATH_PREAMBLE_DVD, "")[1:]
+            value = "D:" + value.replace(self._FILE_PATH_PREAMBLE_DVD, "")
 
         return value

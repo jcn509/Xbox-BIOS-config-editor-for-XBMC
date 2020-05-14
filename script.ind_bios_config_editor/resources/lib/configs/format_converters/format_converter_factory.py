@@ -1,4 +1,13 @@
-from ..config_field import BooleanField, IntegerField, DiscreteField, StringField, HDDFilePathField, OptionalHDDFilePathField, DVDFilePathField, HexColourField
+from ..config_field import (
+    BooleanField,
+    IntegerField,
+    DiscreteField,
+    StringField,
+    HDDFilePathField,
+    OptionalHDDFilePathField,
+    DVDFilePathField,
+    HexColourField,
+)
 from .boolean_format_converter import BooleanFormatConverter
 from .discrete_format_converter import DiscreteFormatConverter
 from .dos_file_path_format_converter import DosFilePathFormatConverter
@@ -13,8 +22,10 @@ _DOS_FILE_PATH_OR_ZERO_CONVERTER = DosFilePathOrZeroFormatConverter()
 _INTEGER_FORMAT_CONVERTER = IntegerFormatConverter()
 _STRING_FORMAT_CONVERTER = StringFormatConverter()
 
+
 class FormatConverterFactoryError(Exception):
     pass
+
 
 def format_converter_factory(config_field):
     if isinstance(config_field, BooleanField):

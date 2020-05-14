@@ -3,19 +3,37 @@ import xbmcaddon
 import os
 
 _addon = xbmcaddon.Addon()
-_addon_path = _addon.getAddonInfo('path')
+_addon_path = _addon.getAddonInfo("path")
+
 
 class ButtonWithIcon(pyxbmct.Group):
-
-    def __new__(cls, text, icon_filename, icon_full_path = False,
-                icon_pad_x = 5, icon_pad_y = 5, *args, **kwargs):         
+    def __new__(
+        cls,
+        text,
+        icon_filename,
+        icon_full_path=False,
+        icon_pad_x=5,
+        icon_pad_y=5,
+        *args,
+        **kwargs
+    ):
         return super(ButtonWithIcon, cls).__new__(cls, 1, 2, *args, **kwargs)
 
-    def __init__(self, text, icon_filename, icon_full_path = False,
-                 icon_pad_x = 5, icon_pad_y = 5, *args, **kwargs):
+    def __init__(
+        self,
+        text,
+        icon_filename,
+        icon_full_path=False,
+        icon_pad_x=5,
+        icon_pad_y=5,
+        *args,
+        **kwargs
+    ):
         super(ButtonWithIcon, self).__init__(1, 2, *args, **kwargs)
         if not icon_full_path:
-            icon_filename = os.path.join(_addon_path, 'resources', 'media', icon_filename)
+            icon_filename = os.path.join(
+                _addon_path, "resources", "media", icon_filename
+            )
 
         self._button = pyxbmct.Button(text)
         self._icon = pyxbmct.Image(icon_filename, aspectRatio=2)
@@ -38,9 +56,8 @@ class ButtonWithIcon(pyxbmct.Group):
 
         button_x, button_y = self._button.getPosition()
         button_width = self._button.getWidth()
-        
-        new_icon_x = button_x + button_width - \
-                     ((icon_side + icon_width)/2 + pad_x)
+
+        new_icon_x = button_x + button_width - ((icon_side + icon_width) / 2 + pad_x)
         self._icon.setPosition(new_icon_x, icon_y)
 
     def setEnabled(self, enabled):
@@ -53,16 +70,16 @@ class ButtonWithIcon(pyxbmct.Group):
     def _connectCallback(self, callable, window):
         window.connect(self._button, callable)
         return False
-    
+
     def _placedCallback(self, window, *args, **kwargs):
         """
         Called once the button has been placed
         """
         super(ButtonWithIcon, self)._placedCallback(window, *args, **kwargs)
-        
-        self.placeControl(self._button, 0, 0, pad_x = 0, pad_y = 0,
-                          columnspan = 2)
-        
+
+        self.placeControl(self._button, 0, 0, pad_x=0, pad_y=0, columnspan=2)
+
         self._icon._placedCallback = self._icon_placed
-        self.placeControl(self._icon, 0, 1, pad_x = self._icon_pad_x,
-                          pad_y = self._icon_pad_y)
+        self.placeControl(
+            self._icon, 0, 1, pad_x=self._icon_pad_x, pad_y=self._icon_pad_y
+        )

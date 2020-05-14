@@ -3,9 +3,15 @@ from StringIO import StringIO
 import os
 import re
 from abc import ABCMeta, abstractmethod
-from .config_errors import ConfigError, ConfigFieldNameError, ConfigFieldValueError, ConfigPresetDoesNotExistError
+from .config_errors import (
+    ConfigError,
+    ConfigFieldNameError,
+    ConfigFieldValueError,
+    ConfigPresetDoesNotExistError,
+)
 from .validators import validator_factory
 from .format_converters import format_converter_factory
+
 
 class AbstractConfig(object):
     __metaclass__ = ABCMeta
@@ -14,9 +20,13 @@ class AbstractConfig(object):
         fields = self._get_fields()
         self._options = tuple(field.field_name for field in fields)
 
-        self._defaults  = {field.field_name: field.default_value for field in fields}
-        self._format_converters = {field.field_name: format_converter_factory(field) for field in fields}
-        self._validators = {field.field_name: validator_factory(field) for field in fields}
+        self._defaults = {field.field_name: field.default_value for field in fields}
+        self._format_converters = {
+            field.field_name: format_converter_factory(field) for field in fields
+        }
+        self._validators = {
+            field.field_name: validator_factory(field) for field in fields
+        }
 
         self._max_line_length = max_line_length
         self._quote_char_if_whitespace = quote_char_if_whitespace
@@ -33,7 +43,7 @@ class AbstractConfig(object):
 
     def defaults(self):
         return self._defaults
-    
+
     def options(self):
         return self._options
 
@@ -51,15 +61,22 @@ class AbstractConfig(object):
 
     def read(self, filename, set_invalid_fields_to_default=True, *args, **kwargs):
         with open(filename) as fp:
-            self.readfp(fp, set_invalid_fields_to_default=set_invalid_fields_to_default, *args, **kwargs)
+            self.readfp(
+                fp,
+                set_invalid_fields_to_default=set_invalid_fields_to_default,
+                *args,
+                **kwargs
+            )
 
     def _remove_start_end_quote_chars(self):
         if self._quote_char_if_whitespace:
             for field in self._options:
                 value = self._get_in_config_format(field)
-                if value[0] == self._quote_char_if_whitespace and value[-1] == self._quote_char_if_whitespace:
+                if (
+                    value[0] == self._quote_char_if_whitespace
+                    and value[-1] == self._quote_char_if_whitespace
+                ):
                     self._set_in_config_format(field, value[1:-1])
-
 
     def readfp(self, fp, set_invalid_fields_to_default=True, *args, **kwargs):
         stream = StringIO()
@@ -69,7 +86,7 @@ class AbstractConfig(object):
         except AttributeError:
             pass
 
-        stream.write('[' + ConfigParser.DEFAULTSECT + ']\n')
+        stream.write("[" + ConfigParser.DEFAULTSECT + "]\n")
         stream.write(fp.read())
         stream.seek(0, 0)
 
@@ -78,16 +95,22 @@ class AbstractConfig(object):
             self._remove_start_end_quote_chars()
         self._validate_everything_in_config_format(set_invalid_fields_to_default)
 
-    def _validate_everything_in_config_format(self, set_invalid_fields_to_default=False):
+    def _validate_everything_in_config_format(
+        self, set_invalid_fields_to_default=False
+    ):
         for option in self.options():
             value = self._get_in_config_format(option)
             if set_invalid_fields_to_default:
                 try:
-                    self._validate_option_name_and_value(option, value, value_is_in_config_format = True)
+                    self._validate_option_name_and_value(
+                        option, value, value_is_in_config_format=True
+                    )
                 except ConfigError as e:
                     self.set_to_default(option)
             else:
-                self._validate_option_name_and_value(option, value, value_is_in_config_format = True)
+                self._validate_option_name_and_value(
+                    option, value, value_is_in_config_format=True
+                )
 
     def _validate_option_name(self, option_name):
         if option_name not in self._options:
@@ -98,14 +121,26 @@ class AbstractConfig(object):
         if self._max_line_length is not None:
             # The equals sign, and \r\n on the end of line
             additional_chars = 3
-            if self._quote_char_if_whitespace and re.search(r"\s", value_in_config_format):
+            if self._quote_char_if_whitespace and re.search(
+                r"\s", value_in_config_format
+            ):
                 # The quotes around the value
                 additional_chars += 2
-            if len(option_name) + len(value_in_config_format) + additional_chars > self._max_line_length:
-                raise ConfigFieldValueError("Cannot use " + value_in_config_format + " for field " + option_name + " the line length in the file would be too long")
+            if (
+                len(option_name) + len(value_in_config_format) + additional_chars
+                > self._max_line_length
+            ):
+                raise ConfigFieldValueError(
+                    "Cannot use "
+                    + value_in_config_format
+                    + " for field "
+                    + option_name
+                    + " the line length in the file would be too long"
+                )
 
-
-    def _validate_option_name_and_value(self, option_name, value, value_is_in_config_format = False):
+    def _validate_option_name_and_value(
+        self, option_name, value, value_is_in_config_format=False
+    ):
         self._validate_option_name(option_name)
 
         # Won't reach this if option name is invalid
@@ -121,11 +156,17 @@ class AbstractConfig(object):
     def _format_option_name(self, option):
         return option.upper()
 
-    def load_preset(self, filename, fields_to_apply_to, set_invalid_fields_to_default=True):
+    def load_preset(
+        self, filename, fields_to_apply_to, set_invalid_fields_to_default=True
+    ):
         if not os.path.isfile(filename):
-            raise ConfigPresetDoesNotExistError("Preset '" + filename + "' does not exist")
+            raise ConfigPresetDoesNotExistError(
+                "Preset '" + filename + "' does not exist"
+            )
         preset_config = self.__class__()
-        preset_config.read(filename, set_invalid_fields_to_default=set_invalid_fields_to_default)
+        preset_config.read(
+            filename, set_invalid_fields_to_default=set_invalid_fields_to_default
+        )
 
         for field in fields_to_apply_to:
             self.set(field, preset_config.get(field))
@@ -152,7 +193,7 @@ class AbstractConfig(object):
         format_converter = self._format_converters[option]
         value_in_config_format = format_converter.convert_to_config_file_format(value)
         return self._set_in_config_format(option, value_in_config_format)
-    
+
     def _set_in_config_format(self, option, value):
         return self._config_parser.set(ConfigParser.DEFAULTSECT, option, value)
 
@@ -179,16 +220,25 @@ class AbstractConfig(object):
             for field in self._options:
                 value = self._get_in_config_format(field)
                 if re.search(r"\s", value):
-                    value = self._quote_char_if_whitespace + value + self._quote_char_if_whitespace
+                    value = (
+                        self._quote_char_if_whitespace
+                        + value
+                        + self._quote_char_if_whitespace
+                    )
                     self._set_in_config_format(field, value)
 
         if dont_write_if_default:
             output_file = ConfigParser.RawConfigParser()
             output_file.optionxform = self._format_option_name
             for field in self._options:
-                if field not in self._defaults or self.get(field) != self._defaults[field]:
+                if (
+                    field not in self._defaults
+                    or self.get(field) != self._defaults[field]
+                ):
                     value_in_config_format = self._get_in_config_format(field)
-                    output_file.set(ConfigParser.DEFAULTSECT, field, value_in_config_format)
+                    output_file.set(
+                        ConfigParser.DEFAULTSECT, field, value_in_config_format
+                    )
             output_file.write(stream)
         else:
             self._config_parser.write(stream)
@@ -198,9 +248,9 @@ class AbstractConfig(object):
         stream.readline()
         # Replace the first non-commented out instance of " = " with "="
         # (iND-BiOS will only see the first 300 characters of every line)
-        equals_white_space_regex = re.compile(r'^([^;]+)\s+=\s+')
+        equals_white_space_regex = re.compile(r"^([^;]+)\s+=\s+")
         for line in stream:
-            fp.write(equals_white_space_regex.sub(r'\1=', line))
+            fp.write(equals_white_space_regex.sub(r"\1=", line))
 
         if self._quote_char_if_whitespace:
             self._remove_start_end_quote_chars()

@@ -5,4 +5,7 @@ from .dos_file_path_format_converter import DosFilePathFormatConverter
 from .dos_file_path_or_zero_format_converter import DosFilePathOrZeroFormatConverter
 from .integer_format_converter import IntegerFormatConverter
 from .string_format_converter import StringFormatConverter
-from .format_converter_factory import format_converter_factory, FormatConverterFactoryError
+from .format_converter_factory import (
+    format_converter_factory,
+    FormatConverterFactoryError,
+)

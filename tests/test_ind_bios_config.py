@@ -1,13 +1,20 @@
 import re
 import sys
 import os
-import itertools
 import pytest
 import tempfile
-from resources.lib.configs import IndBiosConfig, ConfigFieldValueError, ConfigFieldNameError
+from resources.lib.configs import (
+    IndBiosConfig,
+    ConfigFieldValueError,
+    ConfigFieldNameError,
+)
 
-TEST_CONFIG_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "test_configs")
-
+TEST_CONFIG_DIR = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), "test_configs"
+)
+DEFAULT_CONFIG = IndBiosConfig()
+CONFIG_OPTIONS = DEFAULT_CONFIG.options()
+CONFIG_DEFAULTS = {option: DEFAULT_CONFIG.get(option) for option in CONFIG_OPTIONS}
 
 def sub_lists(list1):
     # store all the sublists
@@ -24,76 +31,89 @@ def sub_lists(list1):
 
     return sublists
 
-def remove_comments_and_extra_white_space(file):
-    useful_lines = set()
-    comment_removal_regex = re.compile(";.*$")
-    for line in file:
-        line = comment_removal_regex.sub("", line).strip()
-        if line:
-            useful_lines.add(line)
-    return useful_lines
-
 
 def get_config_file_path(filename):
-    script_dir = os.path.dirname(__file__) #<-- absolute dir the script is in
-    return os.path.join(script_dir, "test_configs", filename)
+    return os.path.join(TEST_CONFIG_DIR, filename)
 
 
-class TestIndBiosConfig:
-    @classmethod
-    def setup_class(cls):
-        cls._config = IndBiosConfig()
+def get_config_editor_for_file(filename):
+    config_editor = IndBiosConfig()
+    config_editor.read(filename)
+    return config_editor
 
-    @pytest.mark.parametrize(
-            "filename", 
-            ["valid1.cfg"]
-    )
-    def test_parse_valid_config(self, filename):
-        filename = get_config_file_path(filename)
-        self._config.read(filename)
+def get_config_editors_for_each_file(filenames):
+    config_editors = []
+    for filename in filenames:
+        config_editor = get_config_editor_for_file(filename)
+        config_editors.append(config_editor)
+    return config_editors
 
-    @pytest.mark.parametrize("filename, field_that_is_reset, other_fields_that_should_not_be_reset",[
-        ("invalid_boolean.cfg", "AUTOLOADDVD", {"AVCHECK": False})
-    ])
-    def test_parse_invalid_field_reset_to_default(self, filename, field_that_is_reset, other_fields_that_should_not_be_reset):
-        filename = get_config_file_path(filename)
-        self._config.read(filename, True)
-        # Ensure that this value is reset to default as it was invalid
-        assert self._config.get(field_that_is_reset) == self._config.defaults()[field_that_is_reset], field_that_is_reset + " reset to default value"
-        # Ensure that these values were not reset to default
-        for field in other_fields_that_should_not_be_reset:
-            expected_value = other_fields_that_should_not_be_reset[field]
-            assert self._config.get(field) == expected_value, field+" has default value"
+ALL_CONFIG_FILES = tuple([get_config_file_path(file) for file in os.listdir(TEST_CONFIG_DIR)])
 
-    @pytest.mark.parametrize("filename", [
+
+
+@pytest.mark.parametrize("filename", ["valid1.cfg"])
+def test_parse_valid_config_no_errors(filename):
+    filename = get_config_file_path(filename)
+    IndBiosConfig().read(filename)
+
+
+@pytest.mark.parametrize(
+    "filename, field_that_is_reset, other_fields_that_should_not_be_reset",
+    [("invalid_boolean.cfg", "AUTOLOADDVD", {"AVCHECK": False})],
+)
+def test_parse_invalid_field_reset_to_default(
+    filename, field_that_is_reset, other_fields_that_should_not_be_reset
+):
+    config = IndBiosConfig()
+    filename = get_config_file_path(filename)
+    config.read(filename, True)
+    # Ensure that this value is reset to default as it was invalid
+    assert (
+        config.get(field_that_is_reset)
+        == config.defaults()[field_that_is_reset]
+    ), (field_that_is_reset + " reset to default value")
+    # Ensure that these values were not reset to default
+    for field in other_fields_that_should_not_be_reset:
+        expected_value = other_fields_that_should_not_be_reset[field]
+        assert config.get(field) == expected_value, field + " has default value"
+
+
+@pytest.mark.parametrize(
+    "filename",
+    [
         "invalid_camera_view.cfg",
         "invalid_model_extension.cfg",
         "invalid_xbe_extension.cfg",
         "invalid_bmp_extension.cfg",
-        "invalid_boolean.cfg"
-    ])
-    def test_parse_invalid(self, filename):
-        with pytest.raises(ConfigFieldValueError):
-            filename = get_config_file_path(filename)
-            self._config.read(filename, False)
-
-    @pytest.mark.parametrize("filename", os.listdir(TEST_CONFIG_DIR))
-    def test_config_file_output_no_changes(self, filename):
+        "invalid_boolean.cfg",
+    ],
+)
+def test_parse_invalid(filename):
+    config = IndBiosConfig()
+    with pytest.raises(ConfigFieldValueError):
         filename = get_config_file_path(filename)
-        self._config.read(filename, True)
-        with tempfile.TemporaryFile() as written_file_pointer:
-            self._config.write(written_file_pointer)
-            written_file_pointer.seek(os.SEEK_SET)
-            
-            new_config = IndBiosConfig()
-            new_config.readfp(written_file_pointer, True)
-
-            for option in self._config.options():
-                assert self._config.get(option) == new_config.get(option), option + " has the same value"
+        config.read(filename, False)
 
 
+@pytest.mark.parametrize("config", get_config_editors_for_each_file(ALL_CONFIG_FILES))
+def test_config_file_output_no_changes(config):
+    with tempfile.TemporaryFile() as written_file_pointer:
+        config.write(written_file_pointer)
+        written_file_pointer.seek(os.SEEK_SET)
 
-    @pytest.mark.parametrize("option,value", [
+        new_config = IndBiosConfig()
+        new_config.readfp(written_file_pointer, True)
+
+        for option in CONFIG_OPTIONS:
+            assert config.get(option) == new_config.get(option), (
+                option + " has the same value"
+            )
+
+
+@pytest.mark.parametrize(
+    "option,value",
+    [
         ("TMS", False),
         ("TMS", True),
         ("CUSTOMBLOB", None),
@@ -113,13 +133,18 @@ class TestIndBiosConfig:
         ("DASH3", "G:\\xboxdash.xbe"),
         ("DASH1", "G:\\dir\\xboxdash.xbe"),
         ("DASH2", "G:\\dir1\\dir2\\xboxdash.xbe"),
-        ("DASH3", "G:\\test\\test\\xboxdash.xbe")
-    ])
-    def test_set_value_valid(self, option, value):
-        self._config.set(option, value)
-        assert self._config.get(option) == value, "value set correctly"
+        ("DASH3", "G:\\test\\test\\xboxdash.xbe"),
+    ],
+)
+def test_set_value_valid(option, value):
+    config = IndBiosConfig()
+    config.set(option, value)
+    assert config.get(option) == value, "value set correctly"
 
-    @pytest.mark.parametrize("option,value", [
+
+@pytest.mark.parametrize(
+    "option,value",
+    [
         ("TMS", "GGGG"),
         ("TMS", "X"),
         ("CUSTOMBLOB", "3"),
@@ -154,29 +179,35 @@ class TestIndBiosConfig:
         ("FOG1CUSTOM", "a"),
         ("FOG1CUSTOM", "2"),
         ("FOG1CUSTOM", None),
-        ("FOG1CUSTOM", "1")
-    ])
-    def test_set_value_invalid(self, option, value):
-        old_value = self._config.get(option)
-        with pytest.raises(ConfigFieldValueError):
-            self._config.set(option, value)
+        ("FOG1CUSTOM", "1"),
+    ],
+)
+def test_set_value_invalid(option, value):
+    config = IndBiosConfig()
+    old_value = config.get(option)
+    with pytest.raises(ConfigFieldValueError):
+        config.set(option, value)
 
-        assert self._config.get(option) == old_value, "value not changed"
+    assert config.get(option) == old_value, "value not changed"
 
-    @pytest.mark.parametrize("preset_filename,apply_to_fields",itertools.product(os.listdir(TEST_CONFIG_DIR), sub_lists(list(IndBiosConfig().options()))))
-    def test_load_preset(self, preset_filename, apply_to_fields):
-        preset_filename = get_config_file_path(preset_filename)
-        values_before = {option: self._config.get(option) for option in self._config.options()}
-        preset_config = IndBiosConfig()
-        preset_config.read(preset_filename, True)
-        self._config.load_preset(preset_filename, apply_to_fields)
 
-        # Ideally I would I use subtest here so that if one assert fails the others will still be executed.
-        # Unfortunately subtest is not available in pytest. The other alternative would be to use parameterized to
-        # perform a separate test for each field but that would be really slow.
-        for field in self._config.options():
-            new_field_value = self._config.get(field)
-            if field in apply_to_fields:
-                assert new_field_value == preset_config.get(field), field + " value changed to the one from the preset"
-            else:
-                assert new_field_value == values_before[field], field + " value unchanged"
+
+@pytest.mark.parametrize(
+    "preset_filename,preset_config,apply_to_fields",
+    [(filename, get_config_editor_for_file(filename), apply_to_fields) for filename in ALL_CONFIG_FILES for apply_to_fields in sub_lists(list(CONFIG_OPTIONS))],
+)
+def test_load_preset(preset_filename, preset_config, apply_to_fields):
+    config = IndBiosConfig()
+    config.load_preset(preset_filename, apply_to_fields)
+
+    # Ideally I would I use subtest here so that if one assert fails the others will still be executed.
+    # Unfortunately subtest is not available in pytest. The other alternative would be to use parameterized to
+    # perform a separate test for each field but that would be really slow.
+    for field in CONFIG_OPTIONS:
+        new_field_value = config.get(field)
+        if field in apply_to_fields:
+            assert new_field_value == preset_config.get(field), (
+                field + " value changed to the one from the preset"
+            )
+        else:
+            assert new_field_value == CONFIG_DEFAULTS[field], field + " value unchanged"

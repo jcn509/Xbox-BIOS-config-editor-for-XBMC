@@ -23,16 +23,36 @@ class FakeEdit(AbstractControl, ButtonWithIcon):
             self.edit = FakeEdit()
         """
 
-    def __new__(cls, default="Enter something...", update_label_on_enter=True,
-                type=0, heading="Enter something...", option=0,
-                icon_pad_x=12, *args, **kwargs):
+    def __new__(
+        cls,
+        default="Enter something...",
+        update_label_on_enter=True,
+        type=0,
+        heading="Enter something...",
+        option=0,
+        icon_pad_x=12,
+        *args,
+        **kwargs
+    ):
 
-        return super(FakeEdit, cls).__new__(cls, default, "edit.png", icon_pad_x=icon_pad_x, *args, **kwargs)
+        return super(FakeEdit, cls).__new__(
+            cls, default, "edit.png", icon_pad_x=icon_pad_x, *args, **kwargs
+        )
 
-    def __init__(self, default="Enter something...", update_label_on_enter=True,
-                 type=0, heading="Enter something...", option=0,
-                 icon_pad_x=12, *args, **kwargs):
-        super(FakeEdit, self).__init__(default, "edit.png", icon_pad_x=icon_pad_x, *args, **kwargs)
+    def __init__(
+        self,
+        default="Enter something...",
+        update_label_on_enter=True,
+        type=0,
+        heading="Enter something...",
+        option=0,
+        icon_pad_x=12,
+        *args,
+        **kwargs
+    ):
+        super(FakeEdit, self).__init__(
+            default, "edit.png", icon_pad_x=icon_pad_x, *args, **kwargs
+        )
         self._type = type
         self._heading = heading
         self._option = option
@@ -61,7 +81,7 @@ class FakeEdit(AbstractControl, ButtonWithIcon):
             if value != self._current_value:
                 self.set_value(value)
 
-        # Not sure if this is garbage collected?            
+        # Not sure if this is garbage collected?
         del keyboard
 
     def _connectCallback(self, callable, window):
