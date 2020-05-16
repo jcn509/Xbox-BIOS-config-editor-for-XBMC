@@ -16,7 +16,7 @@ class DosFilePathFormatConverter(AbstractFormatConverter):
 
         return value
 
-    def convert_to_xbmc_control_format(self, value):
+    def convert_to_python_format(self, value):
         if value.startswith(self._FILE_PATH_PREAMBLE_HDD):
             value = value.replace(self._FILE_PATH_PREAMBLE_HDD, "")
             partition_number = int(value[0])
@@ -30,3 +30,19 @@ class DosFilePathFormatConverter(AbstractFormatConverter):
             value = "D:" + value.replace(self._FILE_PATH_PREAMBLE_DVD, "")
 
         return value
+
+
+class OptionalDosFilePathFormatConverter(DosFilePathFormatConverter):
+    def convert_to_config_file_format(self, value):
+        if value == None:
+            return "0"
+        return super(
+            OptionalDosFilePathFormatConverter, self
+        ).convert_to_config_file_format(value)
+
+    def convert_to_python_format(self, value):
+        if value == "0":
+            return None
+        return super(OptionalDosFilePathFormatConverter, self).convert_to_python_format(
+            value
+        )

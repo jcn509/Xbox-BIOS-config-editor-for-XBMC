@@ -9,8 +9,7 @@ from .config_errors import (
     ConfigFieldValueError,
     ConfigPresetDoesNotExistError,
 )
-from .validators import validator_factory
-from .format_converters import format_converter_factory
+from .factories import format_converter_factory, validator_factory
 
 
 class AbstractConfig(object):
@@ -151,7 +150,7 @@ class AbstractConfig(object):
             validator.validate_in_config_format(value)
             self._validate_config_file_line_length(option_name, value)
         else:
-            validator.validate_in_xbmc_format(value)
+            validator.validate_in_python_format(value)
 
     def _format_option_name(self, option):
         return option.upper()
@@ -177,7 +176,7 @@ class AbstractConfig(object):
             self._validate_option_name(option)
         value_in_config_format = self._get_in_config_format(option)
         format_converter = self._format_converters[option]
-        return format_converter.convert_to_xbmc_control_format(value_in_config_format)
+        return format_converter.convert_to_python_format(value_in_config_format)
 
     def _get_in_config_format(self, option):
         return self._config_parser.get(ConfigParser.DEFAULTSECT, option)

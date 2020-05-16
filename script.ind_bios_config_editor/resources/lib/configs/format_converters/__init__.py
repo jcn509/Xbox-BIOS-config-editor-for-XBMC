@@ -1,11 +1,9 @@
 from .abstract_format_converter import AbstractFormatConverter
 from .boolean_format_converter import BooleanFormatConverter
 from .discrete_format_converter import DiscreteFormatConverter
-from .dos_file_path_format_converter import DosFilePathFormatConverter
-from .dos_file_path_or_zero_format_converter import DosFilePathOrZeroFormatConverter
+from .dos_file_path_format_converters import (
+    DosFilePathFormatConverter,
+    OptionalDosFilePathFormatConverter,
+)
 from .integer_format_converter import IntegerFormatConverter
 from .string_format_converter import StringFormatConverter
-from .format_converter_factory import (
-    format_converter_factory,
-    FormatConverterFactoryError,
-)

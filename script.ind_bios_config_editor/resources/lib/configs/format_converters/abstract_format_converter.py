@@ -9,5 +9,5 @@ class AbstractFormatConverter(object):
         raise NotImplementedError
 
     @abstractmethod
-    def convert_to_xbmc_control_format(self, value):
+    def convert_to_python_format(self, value):
         raise NotImplementedError

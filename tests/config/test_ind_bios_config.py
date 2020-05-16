@@ -16,6 +16,7 @@ DEFAULT_CONFIG = IndBiosConfig()
 CONFIG_OPTIONS = DEFAULT_CONFIG.options()
 CONFIG_DEFAULTS = {option: DEFAULT_CONFIG.get(option) for option in CONFIG_OPTIONS}
 
+
 def sub_lists(list1):
     # store all the sublists
     sublists = [[]]
@@ -41,6 +42,7 @@ def get_config_editor_for_file(filename):
     config_editor.read(filename)
     return config_editor
 
+
 def get_config_editors_for_each_file(filenames):
     config_editors = []
     for filename in filenames:
@@ -48,8 +50,10 @@ def get_config_editors_for_each_file(filenames):
         config_editors.append(config_editor)
     return config_editors
 
-ALL_CONFIG_FILES = tuple([get_config_file_path(file) for file in os.listdir(TEST_CONFIG_DIR)])
 
+ALL_CONFIG_FILES = tuple(
+    [get_config_file_path(file) for file in os.listdir(TEST_CONFIG_DIR)]
+)
 
 
 @pytest.mark.parametrize("filename", ["valid1.cfg"])
@@ -69,10 +73,9 @@ def test_parse_invalid_field_reset_to_default(
     filename = get_config_file_path(filename)
     config.read(filename, True)
     # Ensure that this value is reset to default as it was invalid
-    assert (
-        config.get(field_that_is_reset)
-        == config.defaults()[field_that_is_reset]
-    ), (field_that_is_reset + " reset to default value")
+    assert config.get(field_that_is_reset) == config.defaults()[field_that_is_reset], (
+        field_that_is_reset + " reset to default value"
+    )
     # Ensure that these values were not reset to default
     for field in other_fields_that_should_not_be_reset:
         expected_value = other_fields_that_should_not_be_reset[field]
@@ -191,10 +194,13 @@ def test_set_value_invalid(option, value):
     assert config.get(option) == old_value, "value not changed"
 
 
-
 @pytest.mark.parametrize(
     "preset_filename,preset_config,apply_to_fields",
-    [(filename, get_config_editor_for_file(filename), apply_to_fields) for filename in ALL_CONFIG_FILES for apply_to_fields in sub_lists(list(CONFIG_OPTIONS))],
+    [
+        (filename, get_config_editor_for_file(filename), apply_to_fields)
+        for filename in ALL_CONFIG_FILES
+        for apply_to_fields in sub_lists(list(CONFIG_OPTIONS))
+    ],
 )
 def test_load_preset(preset_filename, preset_config, apply_to_fields):
     config = IndBiosConfig()

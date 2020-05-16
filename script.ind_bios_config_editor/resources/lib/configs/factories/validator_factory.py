@@ -8,7 +8,7 @@ from ..config_field import (
     DVDFilePathField,
     HexColourField,
 )
-from .config_validators import (
+from ..validators import (
     BooleanValidator,
     IntegerValidator,
     DiscreteValidator,
