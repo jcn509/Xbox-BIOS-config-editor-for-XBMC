@@ -1,8 +1,8 @@
 import re
-from .regex_pattern_match_validator import RegexMatchPatternValidator
+from .regex_pattern_match_validator import RegexPatternMatchValidator
 
 
-class FilePathValidator(RegexMatchPatternValidator):
+class FilePathValidator(RegexPatternMatchValidator):
     def __init__(self, device_preabmle, drive_letters_regex, file_extension):
         xbmc_pattern = "^" + drive_letters_regex + ":\\\\.+\\." + file_extension + "$"
         config_pattern = (

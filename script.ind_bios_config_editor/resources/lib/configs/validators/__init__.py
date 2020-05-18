@@ -8,4 +8,4 @@ from .file_path_validators import (
     OptionalHDDFilePathValidator,
 )
 from .integer_validator import IntegerValidator
-from .regex_pattern_match_validator import RegexMatchPatternValidator
+from .regex_pattern_match_validator import RegexPatternMatchValidator

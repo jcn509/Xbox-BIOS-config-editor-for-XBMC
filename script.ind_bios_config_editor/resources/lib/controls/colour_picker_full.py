@@ -23,7 +23,7 @@ class ColourPickerFull(AbstractControl, pyxbmct.Group):
             if default_colour[0:2] == "0x":
                 if len(default_colour) == 10:
                     default_colour = default_colour[0:2] + default_colour[4:]
-            elif len(current_colour) == 8:
+            elif len(default_colour) == 8:
                 default_colour = default_colour[2:]
         super(ColourPickerFull, self).__init__(num_rows, 7, *args, **kwargs)
 

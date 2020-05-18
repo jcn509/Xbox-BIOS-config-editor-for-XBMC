@@ -2,7 +2,7 @@ import re
 from .abstract_validator import AbstractValidator, raise_error
 
 
-class RegexMatchPatternValidator(AbstractValidator):
+class RegexPatternMatchValidator(AbstractValidator):
     __slots__ = "_regex", "_error_message"
 
     def __init__(
@@ -17,7 +17,11 @@ class RegexMatchPatternValidator(AbstractValidator):
 
     def validate_against_regex(self, value, regex):
         if not isinstance(value, basestring):
-            raise_error(str(value) + " is invalid. Value must be a string")
+            raise_error(
+                str(value)
+                + " is invalid. Value must be a string that matches pattern "
+                + regex.pattern
+            )
         if not regex.match(value):
             error_message = self._error_message
             if error_message is None:

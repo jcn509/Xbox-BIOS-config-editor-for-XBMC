@@ -1,7 +1,7 @@
-from .regex_pattern_match_validator import RegexMatchPatternValidator
+from .regex_pattern_match_validator import RegexPatternMatchValidator
 
 
-class HexValidator(RegexMatchPatternValidator):
+class HexValidator(RegexPatternMatchValidator):
     def __init__(self, length):
         super(HexValidator, self).__init__("^0x[0-9a-fA-F]{" + str(length) + "}$")
 

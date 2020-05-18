@@ -12,6 +12,8 @@ class IntegerValidator(AbstractValidator):
         self.validate_in_python_format(int(value))
 
     def validate_in_python_format(self, value):
+        if not isinstance(value, (int, long)):
+            raise_error("Value must be an int or long not " + str(type(value)))
         if value < self._min_value or value > self._max_value:
             raise_error(
                 str(value)

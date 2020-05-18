@@ -12,7 +12,7 @@ from ..validators import (
     BooleanValidator,
     IntegerValidator,
     DiscreteValidator,
-    RegexMatchPatternValidator,
+    RegexPatternMatchValidator,
     ColourWithAlphaValidator,
     ColourValidator,
     DVDFilePathValidator,
@@ -37,7 +37,7 @@ def validator_factory(config_field):
     elif isinstance(config_field, DiscreteField):
         return DiscreteValidator(config_field.values)
     elif isinstance(config_field, StringField):
-        return RegexMatchPatternValidator(config_field.regex)
+        return RegexPatternMatchValidator(config_field.regex)
     elif isinstance(config_field, HDDFilePathField):
         return HDDFilePathValidator(config_field.file_extension)
     elif isinstance(config_field, OptionalHDDFilePathField):
