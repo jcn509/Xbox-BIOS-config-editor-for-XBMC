@@ -124,9 +124,9 @@ def _get_params(validator_classes, paths):
         ),  # Extension does not matter here...
     ),
 )
-def test_validate_in_config_format_valid(validator_class, extension, path):
+def test_validate_in_config_file_format_valid(validator_class, extension, path):
     validator = validator_class(extension)
-    validator.validate_in_config_format(path)
+    validator.validate_in_config_file_format(path)
 
 
 @pytest.mark.parametrize(
@@ -163,11 +163,11 @@ def test_validate_in_config_format_valid(validator_class, extension, path):
         ),
     ),
 )
-def test_validate_in_config_format_invalid(validator_class, extension, path):
+def test_validate_in_config_file_format_invalid(validator_class, extension, path):
     extension = extension if extension is not None else ""
     validator = validator_class(extension)
     with pytest.raises(ConfigFieldValueError) as excinfo:
-        validator.validate_in_config_format(path)
+        validator.validate_in_config_file_format(path)
     assert str(path) in str(excinfo.value)
     assert str(extension) in str(excinfo.value)
 

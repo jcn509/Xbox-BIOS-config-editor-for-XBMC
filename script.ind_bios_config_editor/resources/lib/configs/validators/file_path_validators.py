@@ -24,9 +24,11 @@ class HDDFilePathValidator(FilePathValidator):
 
 
 class OptionalHDDFilePathValidator(HDDFilePathValidator):
-    def validate_in_config_format(self, value):
+    def validate_in_config_file_format(self, value):
         if value != "0":
-            super(OptionalHDDFilePathValidator, self).validate_in_config_format(value)
+            super(OptionalHDDFilePathValidator, self).validate_in_config_file_format(
+                value
+            )
 
     def validate_in_python_format(self, value):
         if value is not None:

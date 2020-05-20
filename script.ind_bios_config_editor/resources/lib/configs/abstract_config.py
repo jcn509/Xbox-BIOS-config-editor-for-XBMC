@@ -147,7 +147,7 @@ class AbstractConfig(object):
         # if the option does not exist)
         validator = self._validators[option_name]
         if value_is_in_config_format:
-            validator.validate_in_config_format(value)
+            validator.validate_in_config_file_format(value)
             self._validate_config_file_line_length(option_name, value)
         else:
             validator.validate_in_python_format(value)

@@ -8,7 +8,7 @@ class IntegerValidator(AbstractValidator):
         self._min_value = min_value
         self._max_value = max_value
 
-    def validate_in_config_format(self, value):
+    def validate_in_config_file_format(self, value):
         self.validate_in_python_format(int(value))
 
     def validate_in_python_format(self, value):

@@ -40,7 +40,7 @@ _VALID_TEST_PARAMS_BOTH_REGEX_SUPPLIED = tuple(
 _VALID_TEST_PARAMS_ONLY_PYTHON_REGEX_SUPPLIED = tuple(
     _get_all_combos(
         _REGEX_VALID_INVALID,
-        (RegexValidInvalid(None, None, None), ),
+        (RegexValidInvalid(None, None, None),),
         _ERROR_MESSAGES,
         lambda regex_valid_invalid: regex_valid_invalid.valid_values,
     )
@@ -56,7 +56,7 @@ _INVALID_TEST_PARAMS_BOTH_REGEX_SUPPLIED = tuple(
 _INVALID_TEST_PARAMS_ONLY_PYTHON_REGEX_SUPPLIED = tuple(
     _get_all_combos(
         _REGEX_VALID_INVALID,
-        (RegexValidInvalid(None, None, None), ),
+        (RegexValidInvalid(None, None, None),),
         _ERROR_MESSAGES,
         lambda regex_valid_invalid: regex_valid_invalid.invalid_values,
     )
@@ -75,13 +75,13 @@ def swap_pattern_order(test_params):
     _VALID_TEST_PARAMS_BOTH_REGEX_SUPPLIED
     + swap_pattern_order(_VALID_TEST_PARAMS_ONLY_PYTHON_REGEX_SUPPLIED),
 )
-def test_validate_in_config_format_valid(
+def test_validate_in_config_file_format_valid(
     config_regex_pattern, python_regex_pattern, error_message, value
 ):
     validator = RegexPatternMatchValidator(
         python_regex_pattern, config_regex_pattern, error_message
     )
-    validator.validate_in_config_format(value)
+    validator.validate_in_config_file_format(value)
 
 
 @pytest.mark.parametrize(
@@ -89,14 +89,14 @@ def test_validate_in_config_format_valid(
     _INVALID_TEST_PARAMS_BOTH_REGEX_SUPPLIED
     + swap_pattern_order(_INVALID_TEST_PARAMS_ONLY_PYTHON_REGEX_SUPPLIED),
 )
-def test_validate_in_config_format_invalid(
+def test_validate_in_config_file_format_invalid(
     config_regex_pattern, python_regex_pattern, error_message, value
 ):
     validator = RegexPatternMatchValidator(
         python_regex_pattern, config_regex_pattern, error_message
     )
     with pytest.raises(ConfigFieldValueError) as excinfo:
-        validator.validate_in_config_format(value)
+        validator.validate_in_config_file_format(value)
     if error_message is None:
         if config_regex_pattern is None:
             assert python_regex_pattern in str(excinfo.value)

@@ -25,16 +25,16 @@ _INVALID_PARAMS = (
 @pytest.mark.parametrize(
     "min, max, value", _VALID_PARAMS,
 )
-def test_validate_in_config_format_valid(min, max, value):
+def test_validate_in_config_file_format_valid(min, max, value):
     validator = IntegerValidator(min, max)
-    validator.validate_in_config_format(str(value))
+    validator.validate_in_config_file_format(str(value))
 
 
 @pytest.mark.parametrize("min, max, value", _INVALID_PARAMS)
-def test_validate_in_config_format_invalid(min, max, value):
+def test_validate_in_config_file_format_invalid(min, max, value):
     validator = IntegerValidator(min, max)
     with pytest.raises(ConfigFieldValueError) as excinfo:
-        validator.validate_in_config_format(str(value))
+        validator.validate_in_config_file_format(str(value))
     assert str(value) in str(excinfo.value)
     assert ">= " + str(min) in str(excinfo.value)
     assert "<= " + str(max) in str(excinfo.value)

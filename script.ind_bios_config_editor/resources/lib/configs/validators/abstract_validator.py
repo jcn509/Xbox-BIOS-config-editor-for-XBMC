@@ -10,7 +10,7 @@ class AbstractValidator(object):
     __metaclass__ = ABCMeta
 
     @abstractmethod
-    def validate_in_config_format(self, value):
+    def validate_in_config_file_format(self, value):
         raise NotImplementedError
 
     @abstractmethod

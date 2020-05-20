@@ -28,7 +28,7 @@ class RegexPatternMatchValidator(AbstractValidator):
                 error_message = "must match pattern: " + regex.pattern
             raise_error(value + " is invalid. " + error_message)
 
-    def validate_in_config_format(self, value):
+    def validate_in_config_file_format(self, value):
         self.validate_against_regex(value, self._config_regex_pattern)
 
     def validate_in_python_format(self, value):

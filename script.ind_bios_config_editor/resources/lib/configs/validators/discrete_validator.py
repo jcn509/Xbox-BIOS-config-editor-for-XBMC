@@ -10,7 +10,7 @@ class DiscreteValidator(AbstractValidator):
             config_format_values = [str(x) for x in range(len(python_format_values))]
         self._config_format_values = config_format_values
 
-    def validate_in_config_format(self, value):
+    def validate_in_config_file_format(self, value):
         if value not in self._config_format_values:
             raise_error(
                 value
