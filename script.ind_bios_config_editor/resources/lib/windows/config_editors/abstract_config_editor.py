@@ -94,7 +94,7 @@ class AbstractConfigEditor(pyxbmct.AddonDialogWindow):
         reset_to_default_window.doModal()
         del reset_to_default_window
 
-    def _change_made_in_tab(self, section, field, value):
+    def _change_made_in_tab(self, field, value):
         self._unsaved_changes = True
 
     def _create_tabs(self, form_config):

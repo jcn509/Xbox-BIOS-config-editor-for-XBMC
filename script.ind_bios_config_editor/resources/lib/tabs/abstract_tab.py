@@ -24,32 +24,24 @@ class AbstractTab(pyxbmct.Group):
 
     def reset_to_default(self):
         defaults = self._config.defaults()
-        for section in self._fields:
-            for field in self._fields[section]:
-                value = defaults[section][field]
-                self._config.set(section, field, value)
-                self._set_control_value(section, field, value, False)
+        for field in self._fields:
+            value = defaults[field]
+            self._config.set(field, value)
+            self._set_control_value(field, value, False)
 
-    def _value_changed(self, section, field, value, control):
-        if self._value_converter:
-            value = self._value_converter.convert_to_config_format(
-                section, field, value, control
-            )
+    def _value_changed(self, field, value, control):
         if self._value_changed_callback:
-            self._value_changed_callback(section, field, value)
-        self._config.set(section, field, value)
+            self._value_changed_callback(field, value)
+        self._config.set(field, value)
 
     def _connectCallback(self, callable, window):
         self._value_changed_callback = callable
         return False
 
-    def _set_control_value(self, section, field, value, trigger_callback=True):
-        control = self._fields[section][field]
+    def _set_control_value(self, field, value, trigger_callback=True):
+        control = self._fields[field]
         # self._config.set(field, value)
-        if self._value_converter:
-            value = self._value_converter.convert_to_control_format(
-                section, field, value, control
-            )
+            
         control.set_value(value, trigger_callback=trigger_callback)
 
     def _update_last_preset_filename(self, last_preset_filename):
@@ -59,17 +51,9 @@ class AbstractTab(pyxbmct.Group):
 
     def load_preset(self, filename):
         self._update_last_preset_filename(filename)
-        fields_to_apply_to = {}
-        for section in self._fields:
-            fields_to_apply_to[section] = []
-            for field in self._fields[section]:
-                fields_to_apply_to[section].append(field)
-        self._config.load_preset(filename, fields_to_apply_to)
-        for section in self._fields:
-            for field in self._fields[section]:
-                self._set_control_value(
-                    field, section, self._config.get(section, field)
-                )
+        self._config.load_preset(filename, self._fields)
+        for field in self._fields:
+            self._set_control_value(field, value)
 
     def save_preset(self, filename):
         self._update_last_preset_filename(filename)
@@ -127,36 +111,20 @@ class AbstractTab(pyxbmct.Group):
         control,
         row,
         column,
-        section=None,
-        custom_control_to_config_converter=None,
-        custom_config_to_control_converter=None,
         *args,
         **kwargs
     ):
 
-        if section is None:
-            section = self._config.get_default_section()
-        if custom_control_to_config_converter and self._value_converter:
-            self._value_converter.register_control_to_config_converter(
-                section, field, custom_control_to_config_converter
-            )
-        if custom_config_to_control_converter and self._value_converter:
-            self._value_converter.register_config_to_control_converter(
-                section, field, custom_config_to_control_converter
-            )
-
-        if section not in self._fields:
-            self._fields[section] = {}
-        self._fields[section][field] = control
+        self._fields[field] = control
 
         callback = lambda value=None: self._value_changed(
-            section, field, value, control
+            field, value, control
         )
         self._window.connect(control, callback)
         self.placeControl(control, row, column, *args, **kwargs)
 
         self._set_control_value(
-            section, field, self._config.get(section, field), trigger_callback=False
+            field, self._config.get(field), trigger_callback=False
         )
 
     def _place_label(
