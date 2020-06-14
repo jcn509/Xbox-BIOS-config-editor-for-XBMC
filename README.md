@@ -1,8 +1,8 @@
-# BIOS Config Editior for XBMC4XBOX
-This is an an addon for XBMC4XBOX that allows you to edit your iND-BiOS (and 
-soon X2)config file from within XBMC. This should help you to more easily 
-experiment with the various configuration options iND-BiOS provides. This 
-addon allows you to save and load presets for that boot animation animation 
+# iND-BiOS Config Editior for XBMC4XBOX [![Build Status](https://travis-ci.com/jcn509/Xbox-BIOS-config-editor-for-XBMC.svg?branch=master)](https://travis-ci.com/jcn509/Xbox-BIOS-config-editor-for-XBMC) 
+This is an an addon for XBMC4XBOX that allows you to edit your iND-BiOS config file from within XBMC. In the future it may also support the X2 BIOS.
+
+This should help you to more easily experiment with the various configuration options iND-BiOS provides. 
+This addon allows you to save and load presets for that boot animation animation 
 colours and model so that you can easily swap out the look of your Xbox in 
 seconds. It (will soon) even comes bundled with several presets out of the box.
 
@@ -44,11 +44,16 @@ does not apply to buttons as they do not have a value to get or set.). All
 controls should also pass their current value to whatever callback is connected
 to them via window.connect.
 
-I have tried to create the beginings of a framework that can be used to create
-config file editors. This project could be modifed fairly easily to support the
+I have tried to create the beginnings of a framework that can be used to create
+config file editors. This project could be modified fairly easily to support the
 editing of other config files.
 
+### Installation for source code editing
+You will need to use Python 2.7 (as that is the version that is embedded in XBMC4XBOX). After cloning the repo you can install the project and all its dependencies (including the dev dependencies needed for testing) using:
+```sh
+pip install -e ".[dev]"
+```
+
+
 ### Tests
-To run the tests in the test folder you will need to have 
-[parameterized](https://pypi.org/project/parameterized/) installed. These tests
-must also be run from within the tests folder.
+Run the tests with `pytest`
