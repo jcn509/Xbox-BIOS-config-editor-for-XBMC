@@ -1,7 +1,7 @@
 from .abstract_format_converter import AbstractFormatConverter
 
 
-class DosFilePathFormatConverter(AbstractFormatConverter):
+class DOSFilePathFormatConverter(AbstractFormatConverter):
     _DRIVE_PARTITION_MAPPING = {"C": 2, "E": 1, "F": 6, "G": 7}
     _FILE_PATH_PREAMBLE_HDD = "\\Device\\Harddisk0\\Partition"
     _FILE_PATH_PREAMBLE_DVD = "\\Device\\CdRom0"
@@ -32,17 +32,17 @@ class DosFilePathFormatConverter(AbstractFormatConverter):
         return value
 
 
-class OptionalDosFilePathFormatConverter(DosFilePathFormatConverter):
+class OptionalDOSFilePathFormatConverter(DOSFilePathFormatConverter):
     def convert_to_config_file_format(self, value):
         if value == None:
             return "0"
         return super(
-            OptionalDosFilePathFormatConverter, self
+            OptionalDOSFilePathFormatConverter, self
         ).convert_to_config_file_format(value)
 
     def convert_to_python_format(self, value):
         if value == "0":
             return None
-        return super(OptionalDosFilePathFormatConverter, self).convert_to_python_format(
+        return super(OptionalDOSFilePathFormatConverter, self).convert_to_python_format(
             value
         )

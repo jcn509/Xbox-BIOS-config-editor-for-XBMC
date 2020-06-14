@@ -11,16 +11,16 @@ from ..config_field import (
 from ..format_converters import (
     BooleanFormatConverter,
     DiscreteFormatConverter,
-    DosFilePathFormatConverter,
+    DOSFilePathFormatConverter,
     IntegerFormatConverter,
-    OptionalDosFilePathFormatConverter,
+    OptionalDOSFilePathFormatConverter,
     StringFormatConverter,
 )
 
 # There is no need for there to be more than 1 instance of these
 _BOOLEAN_FORMAT_CONVERTER = BooleanFormatConverter()
-_DOS_FILE_PATH_CONVERTER = DosFilePathFormatConverter()
-_OPTIONAL_DOS_FILE_PATH_CONVERTER = OptionalDosFilePathFormatConverter()
+_DOS_FILE_PATH_CONVERTER = DOSFilePathFormatConverter()
+_OPTIONAL_DOS_FILE_PATH_CONVERTER = OptionalDOSFilePathFormatConverter()
 _INTEGER_FORMAT_CONVERTER = IntegerFormatConverter()
 _STRING_FORMAT_CONVERTER = StringFormatConverter()
 
