@@ -2,7 +2,6 @@ from .colour_picker import *
 from .colour_picker_full import *
 from .file_selector import *
 from .file_selector_or_zero import *
-from .number_selector import *
 from .select_box import *
 from .fake_slider import *
 from .fake_edit import *
