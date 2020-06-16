@@ -3,7 +3,7 @@ import sys
 import os
 import pytest
 import tempfile
-from resources.lib.configs import (
+from lib.configs import (
     IndBiosConfig,
     ConfigFieldValueError,
     ConfigFieldNameError,

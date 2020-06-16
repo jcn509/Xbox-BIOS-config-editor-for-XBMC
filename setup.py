@@ -9,8 +9,8 @@ setup(
     name="configeditor",
     author="Josh Neil",
     version="1.0.0",
-    package_dir={"": "script.ind_bios_config_editor"},
-    packages=find_packages("./script.ind_bios_config_editor"),
+    package_dir={"": "script.ind_bios_config_editor/resources"},
+    packages=find_packages("./script.ind_bios_config_editor/resources"),
     extras_require={"dev": ["pytest", "pytype"]},
     install_requires=[
         "Kodistubs",

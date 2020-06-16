@@ -53,7 +53,7 @@ class AbstractTab(pyxbmct.Group):
         self._update_last_preset_filename(filename)
         self._config.load_preset(filename, self._fields)
         for field in self._fields:
-            self._set_control_value(field, value)
+            self._set_control_value(field, self.config.get(field))
 
     def save_preset(self, filename):
         self._update_last_preset_filename(filename)

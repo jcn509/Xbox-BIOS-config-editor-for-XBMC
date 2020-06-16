@@ -5,7 +5,7 @@ This converter should do absolutely nothing to its inputs...
 
 import pytest
 
-from resources.lib.configs.format_converters import StringFormatConverter
+from lib.configs.format_converters import StringFormatConverter
 
 _STRING_VALUES = (
     "test",

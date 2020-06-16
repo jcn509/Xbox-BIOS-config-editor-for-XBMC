@@ -1,5 +1,4 @@
 from ..abstract_tab import AbstractTab
-from ... import converters
 
 
 class AbstractIndBiosTab(AbstractTab):
@@ -15,5 +14,3 @@ class AbstractIndBiosTab(AbstractTab):
             config, num_columns=num_columns, default_columnspan=default_columnspan
         )
 
-    def _create_value_converter(self):
-        return converters.IndBios()

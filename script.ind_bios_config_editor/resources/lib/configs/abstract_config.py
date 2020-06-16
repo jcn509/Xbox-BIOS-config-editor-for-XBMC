@@ -162,7 +162,10 @@ class AbstractConfig(object):
             raise ConfigPresetDoesNotExistError(
                 "Preset '" + filename + "' does not exist"
             )
-        preset_config = self.__class__()
+        # Need to disable this error as during execution self.__class__ does
+        # not refer to an instance of AbstractConfig but rather an instance
+        # of one of its subclasses
+        preset_config = self.__class__() # pytype: disable=not-instantiable
         preset_config.read(
             filename, set_invalid_fields_to_default=set_invalid_fields_to_default
         )

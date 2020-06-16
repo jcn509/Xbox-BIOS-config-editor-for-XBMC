@@ -1,6 +1,6 @@
 import pytest
-from resources.lib.configs import ConfigFieldValueError
-from resources.lib.configs.validators import ColourValidator, ColourWithAlphaValidator
+from lib.configs import ConfigFieldValueError
+from lib.configs.validators import ColourValidator, ColourWithAlphaValidator
 
 _COLOUR_VALIDATOR = ColourValidator()
 _COLOUR_WITH_ALPHA_VALIDATOR = ColourWithAlphaValidator()

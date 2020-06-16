@@ -1,6 +1,6 @@
 import pytest
-from resources.lib.configs import ConfigFieldValueError
-from resources.lib.configs.validators import BooleanValidator
+from lib.configs import ConfigFieldValueError
+from lib.configs.validators import BooleanValidator
 
 _BOOLEAN_VALIDATOR = BooleanValidator()
 

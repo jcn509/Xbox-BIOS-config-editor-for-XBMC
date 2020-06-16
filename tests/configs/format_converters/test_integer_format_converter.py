@@ -1,6 +1,6 @@
 import pytest
 
-from resources.lib.configs.format_converters import IntegerFormatConverter
+from lib.configs.format_converters import IntegerFormatConverter
 
 
 @pytest.mark.parametrize(

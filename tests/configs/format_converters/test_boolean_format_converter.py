@@ -1,6 +1,6 @@
 import pytest
 
-from resources.lib.configs.format_converters import BooleanFormatConverter
+from lib.configs.format_converters import BooleanFormatConverter
 
 _BOOLEAN_FORMAT_CONVERTER = BooleanFormatConverter()
 

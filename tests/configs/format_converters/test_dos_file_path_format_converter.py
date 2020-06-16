@@ -2,7 +2,7 @@ from itertools import product
 
 import pytest
 
-from resources.lib.configs.format_converters import (
+from lib.configs.format_converters import (
     DOSFilePathFormatConverter,
     OptionalDOSFilePathFormatConverter,
 )

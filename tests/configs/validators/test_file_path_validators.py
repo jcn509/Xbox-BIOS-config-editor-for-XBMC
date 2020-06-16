@@ -1,8 +1,8 @@
 from itertools import chain
 import pytest
 
-from resources.lib.configs import ConfigFieldValueError
-from resources.lib.configs.validators.file_path_validators import (
+from lib.configs import ConfigFieldValueError
+from lib.configs.validators.file_path_validators import (
     DVDFilePathValidator,
     HDDFilePathValidator,
     OptionalHDDFilePathValidator,

@@ -1,7 +1,7 @@
 import pytest
 
-from resources.lib.configs import ConfigFieldValueError
-from resources.lib.configs.validators import IntegerValidator
+from lib.configs import ConfigFieldValueError
+from lib.configs.validators import IntegerValidator
 
 
 def _get_valid_params(min, max):

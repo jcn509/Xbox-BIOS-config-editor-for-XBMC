@@ -2,8 +2,8 @@ from collections import namedtuple
 from itertools import product
 import pytest
 
-from resources.lib.configs import ConfigFieldValueError
-from resources.lib.configs.validators import RegexPatternMatchValidator
+from lib.configs import ConfigFieldValueError
+from lib.configs.validators import RegexPatternMatchValidator
 
 RegexValidInvalid = namedtuple(
     "RegexValidInvalid", ["pattern", "valid_values", "invalid_values"]

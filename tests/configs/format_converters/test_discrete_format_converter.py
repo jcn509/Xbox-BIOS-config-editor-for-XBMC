@@ -1,6 +1,6 @@
 import pytest
 
-from resources.lib.configs.format_converters import DiscreteFormatConverter
+from lib.configs.format_converters import DiscreteFormatConverter
 
 
 @pytest.mark.parametrize(
