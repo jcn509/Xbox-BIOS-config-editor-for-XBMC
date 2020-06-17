@@ -13,4 +13,3 @@ class AbstractIndBiosTab(AbstractTab):
         super(AbstractIndBiosTab, self).__init__(
             config, num_columns=num_columns, default_columnspan=default_columnspan
         )
-

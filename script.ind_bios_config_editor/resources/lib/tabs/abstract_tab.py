@@ -41,7 +41,7 @@ class AbstractTab(pyxbmct.Group):
     def _set_control_value(self, field, value, trigger_callback=True):
         control = self._fields[field]
         # self._config.set(field, value)
-            
+
         control.set_value(value, trigger_callback=trigger_callback)
 
     def _update_last_preset_filename(self, last_preset_filename):
@@ -105,27 +105,15 @@ class AbstractTab(pyxbmct.Group):
         )
         self._window.connect(save_preset_button, self._save_preset_button_pressed)
 
-    def _place_and_link(
-        self,
-        field,
-        control,
-        row,
-        column,
-        *args,
-        **kwargs
-    ):
+    def _place_and_link(self, field, control, row, column, *args, **kwargs):
 
         self._fields[field] = control
 
-        callback = lambda value=None: self._value_changed(
-            field, value, control
-        )
+        callback = lambda value=None: self._value_changed(field, value, control)
         self._window.connect(control, callback)
         self.placeControl(control, row, column, *args, **kwargs)
 
-        self._set_control_value(
-            field, self._config.get(field), trigger_callback=False
-        )
+        self._set_control_value(field, self._config.get(field), trigger_callback=False)
 
     def _place_label(
         self,

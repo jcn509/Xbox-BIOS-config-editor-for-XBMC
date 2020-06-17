@@ -52,16 +52,10 @@ class Flubber(AbstractIndBiosTab):
         self._place_and_link(
             "CAMERAVIEW",
             controls.SelectBox(
-                ["Random"] + [str(x) for x in range(0, 16)], "Random", "Camera view"
+                [str(x) for x in range(-1, 16)], "-1", "Camera view"
             ),
             2,
-            5,
-            custom_control_to_config_converter=lambda value: value.replace(
-                "Random", "-1"
-            ),
-            custom_config_to_control_converter=lambda value: str(value).replace(
-                "-1", "Random"
-            ),
+            5
         )
         self._place_and_link(
             "IFILTER",

@@ -1,5 +1,5 @@
-from .colour_picker import *
-from .colour_picker_full import *
+from .colour_picker import ColourPicker
+from .colour_picker_full import ColourPickerFull
 from .file_selector import *
 from .file_selector_or_zero import *
 from .select_box import *

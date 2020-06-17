@@ -16,10 +16,6 @@ class Basic(AbstractIndBiosTab):
             controls.SelectBox(igr_modes, "Quick", title="In game reset mode"),
             0,
             2,
-            custom_control_to_config_converter=lambda value: str(
-                igr_modes.index(value)
-            ),
-            custom_config_to_control_converter=lambda value: igr_modes[int(value)],
         )
         self._place_and_link(
             "IGRLOADSDASH",

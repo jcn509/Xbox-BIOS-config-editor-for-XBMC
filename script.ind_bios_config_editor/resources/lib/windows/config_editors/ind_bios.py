@@ -1,5 +1,5 @@
 from .abstract_config_editor import AbstractConfigEditor
-from ... import tabs
+from ...tabs import ind_bios
 from collections import OrderedDict
 from ... import configs
 
@@ -8,25 +8,25 @@ class IndBiosConfigEditor(AbstractConfigEditor):
     def _create_tab_data(self):
         tabs_dict = OrderedDict(
             [
-                ("Basic", {"tab": tabs.ind_bios.Basic, "icon": "settings.png"}),
+                ("Basic", {"tab": ind_bios.Basic, "icon": "settings.png"}),
                 (
                     "Boot Settings",
-                    {"tab": tabs.ind_bios.BootSettings, "icon": "dashboard.png"},
+                    {"tab": ind_bios.BootSettings, "icon": "dashboard.png"},
                 ),
                 (
                     "Flubber",
-                    {"tab": tabs.ind_bios.Flubber, "icon": "video_camera_round.png"},
+                    {"tab": ind_bios.Flubber, "icon": "video_camera_round.png"},
                 ),
-                ("X Screen", {"tab": tabs.ind_bios.XScreen, "icon": "close.png"}),
+                ("X Screen", {"tab": ind_bios.XScreen, "icon": "close.png"}),
                 (
                     "Advanced",
-                    {"tab": tabs.ind_bios.Advanced, "icon": "option_bar_settings.png"},
+                    {"tab": ind_bios.Advanced, "icon": "option_bar_settings.png"},
                 ),
             ]
         )
         tab_data = {
             "tabs": tabs_dict,
-            "num_rows": tabs.ind_bios.AbstractIndBiosTab.NUM_ROWS,
+            "num_rows": ind_bios.AbstractIndBiosTab.NUM_ROWS,
         }
         return tab_data
 

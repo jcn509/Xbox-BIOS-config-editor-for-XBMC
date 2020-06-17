@@ -5,6 +5,11 @@ from ._colour_square import _ColourSquare
 from .colour_picker_full import ColourPickerFull
 from .abstract_control import AbstractControl
 
+# Typing module needed for using pytype
+
+# FIX THIS LATER! PYTYPE DOESN'T LIKE CIRCULAR IMPORTS!
+# pytype: skip-file
+
 
 class ColourPicker(AbstractControl, pyxbmct.Group):
     def __new__(

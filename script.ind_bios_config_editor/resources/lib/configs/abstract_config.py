@@ -20,12 +20,20 @@ class AbstractConfig(object):
         self._options = tuple(field.field_name for field in fields)
 
         self._defaults = {field.field_name: field.default_value for field in fields}
+
+        # pytype not callable errors are incorrect
+        # pytype: disable=not-callable
         self._format_converters = {
-            field.field_name: format_converter_factory(field) for field in fields
+            field.field_name: format_converter_factory(
+                field
+            )
+            for field in fields
         }
         self._validators = {
-            field.field_name: validator_factory(field) for field in fields
+            field.field_name: validator_factory(field)
+            for field in fields
         }
+        # pytype: enable=not-callable
 
         self._max_line_length = max_line_length
         self._quote_char_if_whitespace = quote_char_if_whitespace
@@ -165,7 +173,7 @@ class AbstractConfig(object):
         # Need to disable this error as during execution self.__class__ does
         # not refer to an instance of AbstractConfig but rather an instance
         # of one of its subclasses
-        preset_config = self.__class__() # pytype: disable=not-instantiable
+        preset_config = self.__class__()  # pytype: disable=not-instantiable
         preset_config.read(
             filename, set_invalid_fields_to_default=set_invalid_fields_to_default
         )

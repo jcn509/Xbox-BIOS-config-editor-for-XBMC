@@ -25,7 +25,7 @@ IND_BIOS_FIELDS = (
     BooleanField("IFILTER", True),
     # Boot animation
     BooleanField("480P", False),
-    IntegerField("CAMERAVIEW", -1, -1, 15),
+    DiscreteField("CAMERAVIEW", "-1", tuple(str(x) for x in range(-1, 16))),
     BooleanField("FASTANI", False),
     HexColourField("SCENECOLOR1", "0xFF35FF1A", True),
     HexColourField("SCENECOLOR2", "0xFF35FF1A", True),
