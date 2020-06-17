@@ -10,23 +10,47 @@ def _get_icon_filename(type, custom_icon):
 
 
 class FileSelector(AbstractControl, ButtonWithIcon):
-
-    def __new__(cls, default="Select File", update_label_on_select=True,
-                type=1, heading="Select File", shares="files", mask="",
-                use_thumbs=False, treat_as_folder=False, custom_icon=None,
-                icon_pad_x=8, icon_pad_y=5, *args, **kwargs):
+    def __new__(
+        cls,
+        default="Select File",
+        update_label_on_select=True,
+        type=1,
+        heading="Select File",
+        shares="files",
+        mask="",
+        use_thumbs=False,
+        treat_as_folder=False,
+        custom_icon=None,
+        icon_pad_x=8,
+        icon_pad_y=5,
+        *args,
+        **kwargs
+    ):
         icon = _get_icon_filename(type, custom_icon)
-        return super(FileSelector, cls).__new__(cls, default, icon, icon_pad_x=10, *args, **kwargs)
+        return super(FileSelector, cls).__new__(
+            cls, default, icon, icon_pad_x=10, *args, **kwargs
+        )
 
-    def __init__(self, default="Select File", update_label_on_select=True,
-                 type=1, heading="Select File", shares="files", mask="",
-                 use_thumbs=False, treat_as_folder=False, custom_icon=None,
-                 icon_pad_x=8, icon_pad_y=5, *args, **kwargs):
+    def __init__(
+        self,
+        default="Select File",
+        update_label_on_select=True,
+        type=1,
+        heading="Select File",
+        shares="files",
+        mask="",
+        use_thumbs=False,
+        treat_as_folder=False,
+        custom_icon=None,
+        icon_pad_x=8,
+        icon_pad_y=5,
+        *args,
+        **kwargs
+    ):
         icon = _get_icon_filename(type, custom_icon)
-        super(FileSelector, self).__init__(default, icon,
-                                           icon_pad_x=icon_pad_x,
-                                           icon_pad_y=icon_pad_y,
-                                           *args, **kwargs)
+        super(FileSelector, self).__init__(
+            default, icon, icon_pad_x=icon_pad_x, icon_pad_y=icon_pad_y, *args, **kwargs
+        )
         self._type = type
         self._heading = heading
         self._shares = shares
@@ -52,9 +76,15 @@ class FileSelector(AbstractControl, ButtonWithIcon):
 
     def _browse(self):
         dialog = xbmcgui.Dialog()
-        file_path = dialog.browse(self._type, self._heading, self._shares,
-                                  self._mask, self._use_thumbs, self._treat_as_folder,
-                                  self._current_selection)
+        file_path = dialog.browse(
+            self._type,
+            self._heading,
+            self._shares,
+            self._mask,
+            self._use_thumbs,
+            self._treat_as_folder,
+            self._current_selection,
+        )
 
         # I don't believe these are garbage collected?
         del dialog

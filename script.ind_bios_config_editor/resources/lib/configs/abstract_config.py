@@ -1,34 +1,58 @@
 import ConfigParser
+from StringIO import StringIO
 import os
 import re
 from abc import ABCMeta, abstractmethod
+from .config_errors import (
+    ConfigError,
+    ConfigFieldNameError,
+    ConfigFieldValueError,
+    ConfigPresetDoesNotExistError,
+)
+from .factories import format_converter_factory, validator_factory
 
 
-class AbstractConfig(ConfigParser.RawConfigParser, object):
+class AbstractConfig(object):
     __metaclass__ = ABCMeta
 
-    def __init__(self, max_line_length=None, quote_char_if_whitespace=None, *args, **kwargs):
+    def __init__(self, max_line_length=None, quote_char_if_whitespace=None):
         fields = self._get_fields()
-        self._field_validators = {section: {field.field_name: field for field in fields[section]} for section in fields}
-        defaults_dict = self.defaults()
+        self._options = tuple(field.field_name for field in fields)
+
+        self._defaults = {field.field_name: field.default_value for field in fields}
+
+        # pytype not callable errors are incorrect
+        # pytype: disable=not-callable
+        self._format_converters = {
+            field.field_name: format_converter_factory(
+                field
+            )
+            for field in fields
+        }
+        self._validators = {
+            field.field_name: validator_factory(field)
+            for field in fields
+        }
+        # pytype: enable=not-callable
 
         self._max_line_length = max_line_length
         self._quote_char_if_whitespace = quote_char_if_whitespace
 
-        super(AbstractConfig, self).__init__(*args, **kwargs)
+        # Could inherit from RawConfigParser instead
+        # but decided not as the interface is different
+        # e.g. get and set take different arguments
+        # and get does not always return a string.
+        self._config_parser = ConfigParser.RawConfigParser()
+        self._config_parser.optionxform = self._format_option_name
 
-        for section in defaults_dict:
-            self.add_section(section)
-            for field in defaults_dict[section]:
-                self.set(section, field, defaults_dict[section][field])
-
-    def get_default_section(self):
-        return "CONFIG"
+        for field in self._defaults:
+            self.set(field, self._defaults[field])
 
     def defaults(self):
-        return {section: {key: self._field_validators[section][key].default for key in self._field_validators[section]}
-                for
-                section in self._field_validators}
+        return self._defaults
+
+    def options(self):
+        return self._options
 
     @abstractmethod
     def _get_fields(self):
@@ -42,153 +66,201 @@ class AbstractConfig(ConfigParser.RawConfigParser, object):
     def _get_true_if_non_zero(self):
         pass
 
-    def read(self, filenames, set_invalid_fields_to_default=True, *args, **kwargs):
-        if isinstance(filenames, basestring):
-            filenames = [filenames]
-
-        read_ok = []
-        for filename in filenames:
-            try:
-                with open(filename) as fp:
-                    self.readfp(fp, set_invalid_fields_to_default=set_invalid_fields_to_default, *args, **kwargs)
-            except IOError:
-                continue
-            else:
-                read_ok.append(filename)
-
-        return read_ok
+    def read(self, filename, set_invalid_fields_to_default=True, *args, **kwargs):
+        with open(filename) as fp:
+            self.readfp(
+                fp,
+                set_invalid_fields_to_default=set_invalid_fields_to_default,
+                *args,
+                **kwargs
+            )
 
     def _remove_start_end_quote_chars(self):
         if self._quote_char_if_whitespace:
-            for section in self.sections():
-                for field in self.options(section):
-                    value = self.get(section, field, do_validation=False)
-                    if value[0] == self._quote_char_if_whitespace and value[-1] == self._quote_char_if_whitespace:
-                        self.set(section, field, value[1:-1], do_validation=False)
+            for field in self._options:
+                value = self._get_in_config_format(field)
+                if (
+                    value[0] == self._quote_char_if_whitespace
+                    and value[-1] == self._quote_char_if_whitespace
+                ):
+                    self._set_in_config_format(field, value[1:-1])
 
     def readfp(self, fp, set_invalid_fields_to_default=True, *args, **kwargs):
-        super(AbstractConfig, self).readfp(fp, *args, **kwargs)
+        stream = StringIO()
+
+        try:
+            stream.name = fp.name
+        except AttributeError:
+            pass
+
+        stream.write("[" + ConfigParser.DEFAULTSECT + "]\n")
+        stream.write(fp.read())
+        stream.seek(0, 0)
+
+        self._config_parser.readfp(stream, *args, **kwargs)
         if self._quote_char_if_whitespace:
             self._remove_start_end_quote_chars()
-        self._validate_everything(set_invalid_fields_to_default)
+        self._validate_everything_in_config_format(set_invalid_fields_to_default)
 
-    def _validate_everything(self, set_invalid_fields_to_default=False):
-        defaults_dict = self.defaults()
-        valid_sections = defaults_dict.keys()
-        for section in self.sections():
-            if section in valid_sections:
-                valid_options = defaults_dict[section].keys()
-                for option in self.items(section):
-                    name = option[0]
-                    if name in valid_options:
-                        value = option[1]
-                        if set_invalid_fields_to_default:
-                            try:
-                                self._validate_option_name_and_value(section, name, value)
-                            except:
-                                self.set_to_default(section, name)
-                        else:
-                            self._validate_option_name_and_value(section, name, value)
+    def _validate_everything_in_config_format(
+        self, set_invalid_fields_to_default=False
+    ):
+        for option in self.options():
+            value = self._get_in_config_format(option)
+            if set_invalid_fields_to_default:
+                try:
+                    self._validate_option_name_and_value(
+                        option, value, value_is_in_config_format=True
+                    )
+                except ConfigError as e:
+                    self.set_to_default(option)
             else:
-                raise ValueError(section + " is not a valid section")
+                self._validate_option_name_and_value(
+                    option, value, value_is_in_config_format=True
+                )
 
-    def _validate_option_name(self, section, option_name):
-        if not self.has_section(section):
-            raise ConfigParser.NoSectionError(section + " is not a valid section")
-        elif option_name not in self._field_validators[section]:
-            raise ValueError(option_name + " is not a valid option in section " + section)
+    def _validate_option_name(self, option_name):
+        if option_name not in self._options:
+            raise ConfigFieldNameError(option_name + " is not a valid option")
 
-    def _validate_option_name_and_value(self, section, option_name, value):
-        self._validate_option_name(section, option_name)
+    def _validate_config_file_line_length(self, option_name, value_in_config_format):
+        """Ensure that the line in the cfg file will not be too long"""
+        if self._max_line_length is not None:
+            # The equals sign, and \r\n on the end of line
+            additional_chars = 3
+            if self._quote_char_if_whitespace and re.search(
+                r"\s", value_in_config_format
+            ):
+                # The quotes around the value
+                additional_chars += 2
+            if (
+                len(option_name) + len(value_in_config_format) + additional_chars
+                > self._max_line_length
+            ):
+                raise ConfigFieldValueError(
+                    "Cannot use "
+                    + value_in_config_format
+                    + " for field "
+                    + option_name
+                    + " the line length in the file would be too long"
+                )
+
+    def _validate_option_name_and_value(
+        self, option_name, value, value_is_in_config_format=False
+    ):
+        self._validate_option_name(option_name)
 
         # Won't reach this if option name is invalid
         # (which is what we want as there will be no validator
         # if the option does not exist)
-        self._field_validators[section][option_name].validate(value)
-        if self._max_line_length and self._quote_char_if_whitespace is not None:
-            # The equals sign, the 2 spaces around it and \r\n on the end of line
-            additional_chars = 5
-            if re.search(r"\s", value):
-                # The quotes around the value
-                additional_chars += 2 * len(self._quote_char_if_whitespace)
-            if len(option_name) + len(value) + additional_chars > self._max_line_length:
-                raise ValueError("Cannot use " + value + " for field " + option_name +
-                                 " the line length in the file would be too long")
+        validator = self._validators[option_name]
+        if value_is_in_config_format:
+            validator.validate_in_config_file_format(value)
+            self._validate_config_file_line_length(option_name, value)
+        else:
+            validator.validate_in_python_format(value)
 
-    def optionxform(self, option):
+    def _format_option_name(self, option):
         return option.upper()
 
-    def load_preset(self, filename, fields_to_apply_to, set_invalid_fields_to_default=True):
+    def load_preset(
+        self, filename, fields_to_apply_to, set_invalid_fields_to_default=True
+    ):
         if not os.path.isfile(filename):
-            raise ValueError("Preset '" + filename + "' does not exist")
-        # Subclasses may do extra processing etc
-        # and will have the validators properly defined
-        preset_config = self.__class__()
-        preset_config.read(filename, set_invalid_fields_to_default=set_invalid_fields_to_default)
+            raise ConfigPresetDoesNotExistError(
+                "Preset '" + filename + "' does not exist"
+            )
+        # Need to disable this error as during execution self.__class__ does
+        # not refer to an instance of AbstractConfig but rather an instance
+        # of one of its subclasses
+        preset_config = self.__class__()  # pytype: disable=not-instantiable
+        preset_config.read(
+            filename, set_invalid_fields_to_default=set_invalid_fields_to_default
+        )
 
-        for section in fields_to_apply_to:
-            for field in fields_to_apply_to[section]:
-                self.set(section, field, preset_config.get(section, field))
+        for field in fields_to_apply_to:
+            self.set(field, preset_config.get(field))
 
-    def get(self, section, option, do_validation=True):
+    def get(self, option, do_validation=True):
         if do_validation:
-            option = self.optionxform(option)
-            self._validate_option_name(section, option)
-        return super(AbstractConfig, self).get(section, option)
+            option = self._format_option_name(option)
+            self._validate_option_name(option)
+        value_in_config_format = self._get_in_config_format(option)
+        format_converter = self._format_converters[option]
+        return format_converter.convert_to_python_format(value_in_config_format)
 
-    def set_to_default(self, section, option):
-        option = self.optionxform(option)
-        self.set(section, option, self.defaults()[section][option])
+    def _get_in_config_format(self, option):
+        return self._config_parser.get(ConfigParser.DEFAULTSECT, option)
 
-    def set(self, section, option, value, do_validation=True):
+    def set_to_default(self, option):
+        option = self._format_option_name(option)
+        self.set(option, self._defaults[option])
+
+    def set(self, option, value, do_validation=True):
         if do_validation:
-            option = self.optionxform(option)
-            self._validate_option_name_and_value(section, option, value)
-        return super(AbstractConfig, self).set(section, option, value)
+            option = self._format_option_name(option)
+            self._validate_option_name_and_value(option, value)
+        format_converter = self._format_converters[option]
+        value_in_config_format = format_converter.convert_to_config_file_format(value)
+        return self._set_in_config_format(option, value_in_config_format)
+
+    def _set_in_config_format(self, option, value):
+        return self._config_parser.set(ConfigParser.DEFAULTSECT, option, value)
 
     def write(self, fp, dont_write_if_default=True):
-        defaults_dict = self.defaults()
+        stream = StringIO()
         true_if_non_default = self._get_true_if_non_default()
-        for section in true_if_non_default:
-            for field in true_if_non_default[section]:
-                value = '0'
-                for field_to_check in true_if_non_default[section][field]:
-                    if self.get(section, field_to_check) != defaults_dict[section][field_to_check]:
-                        value = '1'
-                        break
-                self.set(section, field, value)
+        for field in true_if_non_default:
+            value = False
+            for field_to_check in true_if_non_default[field]:
+                if self.get(field_to_check) != self._defaults[field_to_check]:
+                    value = True
+                    break
+            self.set(field, value)
         true_if_non_zero = self._get_true_if_non_zero()
-        for section in true_if_non_zero:
-            for field in true_if_non_zero[section]:
-                value = '0'
-                for field_to_check in true_if_non_zero[section][field]:
-                    if self.get(section, field_to_check) != '0':
-                        value = '1'
-                        break
-                self.set(section, field, value)
+        for field in true_if_non_zero:
+            value = False
+            for field_to_check in true_if_non_zero[field]:
+                if self.get(field_to_check):
+                    value = True
+                    break
+            self.set(field, value)
 
         if self._quote_char_if_whitespace:
-            for section in self.sections():
-                for field in self.options(section):
-                    value = self.get(section, field, do_validation=False)
-                    if re.search(r"\s", value):
-                        value = self._quote_char_if_whitespace + value + self._quote_char_if_whitespace
-                        self.set(section, field, value)
+            for field in self._options:
+                value = self._get_in_config_format(field)
+                if re.search(r"\s", value):
+                    value = (
+                        self._quote_char_if_whitespace
+                        + value
+                        + self._quote_char_if_whitespace
+                    )
+                    self._set_in_config_format(field, value)
 
         if dont_write_if_default:
             output_file = ConfigParser.RawConfigParser()
-            output_file.optionxform = self.optionxform
-            for section in self.sections():
-                for field in self.options(section):
-                    value = self.get(section, field, do_validation=False)
-                    if section not in defaults_dict or field not in defaults_dict[section] or \
-                            value != defaults_dict[section][field]:
-                        if not output_file.has_section(section):
-                            output_file.add_section(section)
-                        output_file.set(section, field, value)
-            output_file.write(fp)
+            output_file.optionxform = self._format_option_name
+            for field in self._options:
+                if (
+                    field not in self._defaults
+                    or self.get(field) != self._defaults[field]
+                ):
+                    value_in_config_format = self._get_in_config_format(field)
+                    output_file.set(
+                        ConfigParser.DEFAULTSECT, field, value_in_config_format
+                    )
+            output_file.write(stream)
         else:
-            super(AbstractConfig, self).write(fp)
+            self._config_parser.write(stream)
+
+        # Ignore the first line which will be a marker for the default section
+        stream.seek(0, 0)
+        stream.readline()
+        # Replace the first non-commented out instance of " = " with "="
+        # (iND-BiOS will only see the first 300 characters of every line)
+        equals_white_space_regex = re.compile(r"^([^;]+)\s+=\s+")
+        for line in stream:
+            fp.write(equals_white_space_regex.sub(r"\1=", line))
 
         if self._quote_char_if_whitespace:
             self._remove_start_end_quote_chars()

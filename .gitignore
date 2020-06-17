@@ -33,4 +33,9 @@ venv.bak/
 # PyCharm
 .idea/
 
+.vscode/
+build/
+dist/
+
 .pytype/
+configeditor.egg-info/

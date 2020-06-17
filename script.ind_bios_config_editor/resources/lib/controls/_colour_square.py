@@ -3,12 +3,15 @@ import os
 import xbmcaddon
 
 _addon = xbmcaddon.Addon()
-_addon_path = _addon.getAddonInfo('path')
+_addon_path = _addon.getAddonInfo("path")
+
 
 class _ColourSquare(pyxbmct.Image):
     # Used camelCase for parameter as that is what is done in pyxbmct
     def __new__(cls, colorDiffuse):
-        image_file = os.path.join(_addon_path, 'resources', 'media', 'colour_picker_white_square.png')
+        image_file = os.path.join(
+            _addon_path, "resources", "media", "colour_picker_white_square.png"
+        )
         return super(_ColourSquare, cls).__new__(cls, image_file, aspectRatio=2)
 
     def __init__(self, colorDiffuse):

@@ -1,13 +1,26 @@
 import pyxbmct
 from .. import controls
 
+
 class ColourPicker(pyxbmct.AddonDialogWindow):
-    def __new__(cls, window_title = "Choose Colour", alpha_selector = False, current_colour = "0xFFFFFFFF", colour_chosen_callback = None):
-        return super(ColourPicker, cls).__new__(cls)        
-    
-    def __init__(self, window_title = "Choose Colour", alpha_selector = False, current_colour = "0xFFFFFFFF", colour_chosen_callback = None):
+    def __new__(
+        cls,
+        window_title="Choose Colour",
+        alpha_selector=False,
+        current_colour="0xFFFFFFFF",
+        colour_chosen_callback=None,
+    ):
+        return super(ColourPicker, cls).__new__(cls)
+
+    def __init__(
+        self,
+        window_title="Choose Colour",
+        alpha_selector=False,
+        current_colour="0xFFFFFFFF",
+        colour_chosen_callback=None,
+    ):
         super(ColourPicker, self).__init__(window_title)
-        
+
         num_rows = 5 if alpha_selector else 4
         height = 60 * num_rows
         self.setGeometry(500, height, num_rows, 5)
@@ -18,9 +31,9 @@ class ColourPicker(pyxbmct.AddonDialogWindow):
         ok_button = controls.ButtonWithIcon("OK", "done.png")
         cancel_button = controls.ButtonWithIcon("Cancel", "close.png")
         colour_picker_full = controls.ColourPickerFull(alpha_selector, current_colour)
-        self.placeControl(colour_picker_full, 0, 0, columnspan = 5, rowspan = num_rows - 1)
-        self.placeControl(ok_button, num_rows - 1, 0, columnspan = 2)
-        self.placeControl(cancel_button, num_rows - 1, 3, columnspan = 2)
+        self.placeControl(colour_picker_full, 0, 0, columnspan=5, rowspan=num_rows - 1)
+        self.placeControl(ok_button, num_rows - 1, 0, columnspan=2)
+        self.placeControl(cancel_button, num_rows - 1, 3, columnspan=2)
 
         self.autoNavigation()
 

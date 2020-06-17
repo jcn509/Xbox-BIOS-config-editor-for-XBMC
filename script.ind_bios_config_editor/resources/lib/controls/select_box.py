@@ -4,13 +4,16 @@ import xbmcgui
 
 
 class SelectBox(AbstractControl, ButtonWithIcon):
-
     def __new__(cls, options, default="", title="Select", *args, **kwargs):
         # Default is stored in the label
-        return super(SelectBox, cls).__new__(cls, default, "menu_option.png", icon_pad_x=0, *args, **kwargs)
+        return super(SelectBox, cls).__new__(
+            cls, default, "menu_option.png", icon_pad_x=0, *args, **kwargs
+        )
 
     def __init__(self, options, default="", title="Select", *args, **kwargs):
-        super(SelectBox, self).__init__(default, "menu_option.png", icon_pad_x=0, *args, **kwargs)
+        super(SelectBox, self).__init__(
+            default, "menu_option.png", icon_pad_x=0, *args, **kwargs
+        )
         if not isinstance(options, list):
             raise TypeError("Options must be a list")
         if not all(isinstance(x, str) for x in options):

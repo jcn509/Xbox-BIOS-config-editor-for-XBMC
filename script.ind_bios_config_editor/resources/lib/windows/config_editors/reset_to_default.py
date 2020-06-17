@@ -16,14 +16,21 @@ class ResetToDefault(pyxbmct.AddonDialogWindow):
         self.setGeometry(600, height, num_rows, 2)
 
         self._tabs_to_reset = set()
-        self.placeControl(pyxbmct.Label("Tabs To Reset", alignment=pyxbmct.ALIGN_CENTER_Y), 0, 0)
+        self.placeControl(
+            pyxbmct.Label("Tabs To Reset", alignment=pyxbmct.ALIGN_CENTER_Y), 0, 0
+        )
         self._radio_buttons = []
         for row, tab in enumerate(tab_names, 1):
             radio_button = controls.RadioButton(tab)
             self._radio_buttons.append(radio_button)
             radio_button.set_value(False)
             self.placeControl(radio_button, row, 0, columnspan=2)
-            self.connect(radio_button, lambda state, t=tab, r=radio_button: self._tab_radio_button_toggled(state, t, r))
+            self.connect(
+                radio_button,
+                lambda state, t=tab, r=radio_button: self._tab_radio_button_toggled(
+                    state, t, r
+                ),
+            )
         all_tabs_button = controls.ButtonWithIcon("Select All", "done.png")
         self.placeControl(all_tabs_button, 0, 1)
         self.connect(all_tabs_button, self._select_all_clicked)
@@ -53,9 +60,11 @@ class ResetToDefault(pyxbmct.AddonDialogWindow):
 
     def _ok_clicked(self):
         dialog = xbmcgui.Dialog()
-        confirm = dialog.yesno("Are you sure?",
-                               "Are you sure you want to reset these tabs?",
-                               "This can't be undone!")
+        confirm = dialog.yesno(
+            "Are you sure?",
+            "Are you sure you want to reset these tabs?",
+            "This can't be undone!",
+        )
         del dialog
 
         if confirm:
