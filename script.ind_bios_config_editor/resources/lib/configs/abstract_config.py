@@ -24,14 +24,10 @@ class AbstractConfig(object):
         # pytype not callable errors are incorrect
         # pytype: disable=not-callable
         self._format_converters = {
-            field.field_name: format_converter_factory(
-                field
-            )
-            for field in fields
+            field.field_name: format_converter_factory(field) for field in fields
         }
         self._validators = {
-            field.field_name: validator_factory(field)
-            for field in fields
+            field.field_name: validator_factory(field) for field in fields
         }
         # pytype: enable=not-callable
 

@@ -51,11 +51,9 @@ class Flubber(AbstractIndBiosTab):
         self._place_label("Camera view", 2, 4)
         self._place_and_link(
             "CAMERAVIEW",
-            controls.SelectBox(
-                [str(x) for x in range(-1, 16)], "-1", "Camera view"
-            ),
+            controls.SelectBox([str(x) for x in range(-1, 16)], "-1", "Camera view"),
             2,
-            5
+            5,
         )
         self._place_and_link(
             "IFILTER",

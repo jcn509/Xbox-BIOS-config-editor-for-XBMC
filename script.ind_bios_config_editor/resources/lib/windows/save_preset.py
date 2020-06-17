@@ -1,6 +1,6 @@
 import xbmcgui
 import pyxbmct
-from resources.lib import controls
+from .. import controls
 import os
 
 
