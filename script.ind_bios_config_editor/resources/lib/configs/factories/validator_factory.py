@@ -1,3 +1,13 @@
+"""Factory to create validator objects"""
+
+try:
+    # typing module not available on XBMC4XBOX
+    from typing import Any, TYPE_CHECKING
+    if TYPE_CHECKING:
+        from ..validators import AbstractValidator
+except:
+    pass
+
 from ..config_field import (
     BooleanField,
     IntegerField,
@@ -26,10 +36,13 @@ _COLOUR_WITH_ALPHA_VALIDATOR = ColourWithAlphaValidator()
 
 
 class ValidatorFactoryError(Exception):
+    """Raised if there is an issue creating a validator"""
     pass
 
 
 def validator_factory(config_field):
+    """Create the appropriate validator for config_field"""
+    # type: (Any) ->  AbstractValidator
     if isinstance(config_field, BooleanField):
         return _BOOLEAN_VALIDATOR
     elif isinstance(config_field, IntegerField):

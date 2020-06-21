@@ -1,3 +1,7 @@
+"""Classes used to validate config values in both their Python and config file
+formats
+"""
+
 from .abstract_validator import AbstractValidator
 from .boolean_validator import BooleanValidator
 from .colour_validators import ColourValidator, ColourWithAlphaValidator

@@ -1,5 +1,9 @@
-from collections import namedtuple
+"""Named tuples used to define config fields"""
 
+from collections import namedtuple
+# typing not available on XBMC4XBOX
+_TYPE_CHECKING = False
+ 
 _CONFIG_FIELDS = (
     "field_name",
     "default_value",
@@ -19,3 +23,4 @@ OptionalHDDFilePathField = namedtuple("OptionalHDDFilePathField", _FILE_PATH_FIE
 DVDFilePathField = namedtuple("DVDFilePathField", _FILE_PATH_FIELDS)
 
 HexColourField = namedtuple("HexColourField", _CONFIG_FIELDS + ("with_alpha_channel",))
+

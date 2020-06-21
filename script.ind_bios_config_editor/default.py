@@ -1,3 +1,4 @@
+"""An iND-BiOS config editor addon for XBMC4XBOX"""
 # pytype dislikes this import. Making resources a package caused strange pytest
 # errors, so that isn't a solution.
 # pytype: disable=import-error
