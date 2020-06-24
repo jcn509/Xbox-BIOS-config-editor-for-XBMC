@@ -1,14 +1,28 @@
+"""Window used to select controls that should have their fields reset to
+default
+"""
+try:
+    # typing not available on XBMC4Xbox
+    from typing import Any, Callable, Tuple
+except:
+    pass
+import os
+
 import xbmcgui
 import pyxbmct
+
 from .. import controls
-import os
 
 
 class ResetToDefault(pyxbmct.AddonDialogWindow):
+    """Window used to select controls that should have their fields reset to
+    default
+    """
     def __new__(cls, tab_names, reset_callback=None, *args, **kwargs):
         return super(ResetToDefault, cls).__new__(cls, *args, **kwargs)
 
     def __init__(self, tab_names, reset_callback=None, *args, **kwargs):
+        # type: (Tuple[str], Callable, Any, Any) -> None
         super(ResetToDefault, self).__init__("Reset To Default", *args, **kwargs)
         self._reset_callback = reset_callback
         num_rows = 3 + len(tab_names)
@@ -49,16 +63,19 @@ class ResetToDefault(pyxbmct.AddonDialogWindow):
         self.connect(pyxbmct.ACTION_NAV_BACK, self.close)
 
     def _select_all_clicked(self):
+        # type: () -> None
         for button in self._radio_buttons:
             button.set_value(True)
 
     def _tab_radio_button_toggled(self, state, tab, radio_button):
+        # type: (bool, str, controls.RadioButton) -> None
         if state:
             self._tabs_to_reset.add(tab)
         else:
             self._tabs_to_reset.discard(tab)
 
     def _ok_clicked(self):
+        # type: () -> None
         dialog = xbmcgui.Dialog()
         confirm = dialog.yesno(
             "Are you sure?",

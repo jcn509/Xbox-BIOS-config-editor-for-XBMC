@@ -1,10 +1,25 @@
+"""Used to save config presets to a chosen directory with a chosen file name
+
+(Presets are files contain values for certain fields that can be reapplied to
+a config later)
+"""
+
+import os
+try:
+    # typing not available on XBMC4XBOX
+    from typing import Any, Callable
+except:
+    pass
+
 import xbmcgui
 import pyxbmct
 from .. import controls
-import os
 
 
 class SavePreset(pyxbmct.AddonDialogWindow):
+    """Used to save config presets to a chosen directory with a chosen
+    filename
+    """
     def __new__(
         cls, file_created_callback=None, default_filename=None, *args, **kwargs
     ):
@@ -13,6 +28,7 @@ class SavePreset(pyxbmct.AddonDialogWindow):
     def __init__(
         self, file_created_callback=None, default_filename=None, *args, **kwargs
     ):
+        # type (Callable, str, Any, Any) -> None
         super(SavePreset, self).__init__("Save Flubber-X Preset", *args, **kwargs)
         if file_created_callback:
             self._file_created_callback = file_created_callback
@@ -63,6 +79,7 @@ class SavePreset(pyxbmct.AddonDialogWindow):
         self.connect(pyxbmct.ACTION_NAV_BACK, self.close)
 
     def _ok_clicked(self):
+        # type: () -> None
         directory = self._dir_input.get_value()
         if not os.path.isdir(directory):
             # Do something?

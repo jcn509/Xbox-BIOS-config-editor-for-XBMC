@@ -1,8 +1,15 @@
+"""A window that contains controls that can be used to pick colours"""
+try:
+    # typing is not available on XBMC4Xbox
+    from typing import Callable
+except:
+    pass
 import pyxbmct
 from .. import controls
 
 
 class ColourPicker(pyxbmct.AddonDialogWindow):
+    """Contains controls used to pick a colour"""
     def __new__(
         cls,
         window_title="Choose Colour",
@@ -19,6 +26,14 @@ class ColourPicker(pyxbmct.AddonDialogWindow):
         current_colour="0xFFFFFFFF",
         colour_chosen_callback=None,
     ):
+        """:param alpha_selector: if True then you can also pick the colour's\
+                alpha component
+        :param current_colour: a hexadecimal colour string optionally\
+                prefixed with 0x. If alpha_selector is True then the first 2\
+                characters represent the alpha channel
+        """
+
+        # type: (str, bool, str, Callable) -> None
         super(ColourPicker, self).__init__(window_title)
 
         num_rows = 5 if alpha_selector else 4
@@ -44,9 +59,11 @@ class ColourPicker(pyxbmct.AddonDialogWindow):
         self.setFocus(ok_button)
 
     def _colour_changed(self, colour):
+        # type: (str) -> None
         self._current_colour = colour
 
     def _ok_button_pressed(self):
+        # type: () -> None
         if self._colour_chosen_callback:
             self._colour_chosen_callback(self._current_colour)
         self.close()
