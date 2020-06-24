@@ -1,9 +1,34 @@
+"""Used to select the Xbox's front panel LED pattern"""
+
+try:
+    # typing not available on XBMC4Xbox
+    from typing import Any, Callable
+except:
+    pass
+
 import pyxbmct
 import xbmcaddon
+
 from .abstract_control import AbstractControl
 
 
 class LedPattern(AbstractControl, pyxbmct.Group):
+    """Used to select the Xbox's front panel LED pattern
+    
+    The pattern is represented as a 4 character string. Each character
+    represents one stage of the pattern. iND-BiOS cycles through each stage
+    of the pattern in turn
+
+    Valid values for each character are:
+    - G (Green)
+    - R (Off)
+    - O (Orange)
+    - O (Off)
+
+    The values for each character are chosen by using a red and green radio
+    button. If both radio buttons are on orange is selected, if both are off
+    off is selected, and if only one is on that colour is selected.
+    """
     def __new__(
         cls,
         label_text="LED pattern (green + red = orange, neither = off)",
@@ -20,11 +45,18 @@ class LedPattern(AbstractControl, pyxbmct.Group):
         *args,
         **kwargs
     ):
+        # type: (str, str, Any, Any) -> None
         super(LedPattern, self).__init__(5, 3, *args, **kwargs)
         self._pattern = default_pattern
         self._label_text = label_text
 
     def _change_pattern_position(self, position):
+        """Change a character at the given position
+
+        Character to use comes from the values of the red and green radio
+        buttons at that position
+        """
+        # type: (int) -> None
         green = self._green_radio_buttons[position].isSelected()
         red = self._red_radio_buttons[position].isSelected()
         colour_char = "B"  # LED off
@@ -43,6 +75,11 @@ class LedPattern(AbstractControl, pyxbmct.Group):
             self._pattern_changed_callback(self._pattern)
 
     def set_value(self, pattern, trigger_callback=True):
+        """Set the current LED pattern
+        :param trigger_callback: if False then the callback attached to this\
+                control is not called
+        """
+        # type: (str, bool) -> None
         self._pattern = pattern
 
         for i, value in enumerate(pattern):
@@ -63,11 +100,14 @@ class LedPattern(AbstractControl, pyxbmct.Group):
             self._pattern_changed_callback(pattern)
 
     def get_value(self):
+        """Get the pattern that is currently set"""
+        # type: () -> str
         return self._pattern
 
-    def _connectCallback(self, callable, window):
-        self._pattern_changed_callback = callable
-        return False
+    def _connectCallback(self, callback, window):
+        # type: (Callable, Any) -> bool
+        self._pattern_changed_callback = callback
+        return False # Don't use PyXBMCt's built in connection mechanism
 
     def _placedCallback(self, window, *args, **kwargs):
         super(LedPattern, self)._placedCallback(window, *args, **kwargs)

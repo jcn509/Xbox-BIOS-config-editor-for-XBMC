@@ -1,3 +1,9 @@
+"""A text box control"""
+try:
+    # typing not available on XBMC4Xbox
+    from typing import Any, Callable
+except:
+    pass
 import xbmc
 import xbmcgui
 from .button_with_icon import ButtonWithIcon
@@ -5,66 +11,58 @@ from .abstract_control import AbstractControl
 
 
 class FakeEdit(AbstractControl, ButtonWithIcon):
+    """A text box control that uses a popup keyboard
+
+    Not a derivative of ControlEdit class as that is not available on XBMC4Xbox
     """
-        FakeEdit(textureback=None, texture=None, texturefocus=None, orientation=xbmcgui.HORIZONTAL)
-        
-        Not a derivate of ControlEdit class.
-        
-        Implements a text entry box.
-        
-        :param default: string -- default value.
-        :param update_label_on_enter: booelean -- change label value to what is entered.
-        :param texturefocus: string -- image filename.
-        
-        .. note:: After you create the control, you need to add it to the window with placeControl().
-        
-        Example::
-        
-            self.edit = FakeEdit()
-        """
 
     def __new__(
         cls,
-        default="Enter something...",
+        default_value="Enter something...",
         update_label_on_enter=True,
-        type=0,
-        heading="Enter something...",
-        option=0,
+        keyboard_title="Enter something...",
         icon_pad_x=12,
         *args,
         **kwargs
     ):
-
         return super(FakeEdit, cls).__new__(
-            cls, default, "edit.png", icon_pad_x=icon_pad_x, *args, **kwargs
+            cls, default_value, "edit.png", icon_pad_x=icon_pad_x, *args, **kwargs
         )
 
     def __init__(
         self,
-        default="Enter something...",
+        default_value="Enter something...",
         update_label_on_enter=True,
-        type=0,
-        heading="Enter something...",
-        option=0,
+        keyboard_title="Enter something...",
         icon_pad_x=12,
         *args,
         **kwargs
     ):
+        """:param default: default value.
+        :param update_label_on_enter: change button label value to what is entered.
+        :param keyboard_title: the title displayed on the popup keyboard window
+        """
+        # type: (str, bool, str, int, Any, Any) -> None
         super(FakeEdit, self).__init__(
-            default, "edit.png", icon_pad_x=icon_pad_x, *args, **kwargs
+            default_value, "edit.png", icon_pad_x=icon_pad_x, *args, **kwargs
         )
-        self._type = type
-        self._heading = heading
-        self._option = option
+        self._keyboard_title = keyboard_title
         self._update_label_on_enter = update_label_on_enter
-        self._current_value = default
+        self._current_value = default_value
 
         self._value_chosen_callback = None
 
     def get_value(self):
+        """:returns: the text that has been entered"""
+        # type: () -> str
         return self._current_value
 
     def set_value(self, value, trigger_callback=True):
+        """set the entered text
+        :param trigger_callback: if False then the whatever callback is\
+                connected to this control is not called
+        """
+        # type: (str, bool) -> None
         if self._update_label_on_enter:
             self._button.setLabel(value)
 
@@ -73,7 +71,9 @@ class FakeEdit(AbstractControl, ButtonWithIcon):
             self._value_chosen_callback(value)
 
     def enter_value(self):
-        keyboard = xbmc.Keyboard(self._current_value, self._heading)
+        """Bring up a keyboard so that the user can type in a new value"""
+        # type: () -> None
+        keyboard = xbmc.Keyboard(self._current_value, self._keyboard_title)
         keyboard.doModal()
         if keyboard.isConfirmed():
             value = keyboard.getText()
@@ -84,13 +84,11 @@ class FakeEdit(AbstractControl, ButtonWithIcon):
         # Not sure if this is garbage collected?
         del keyboard
 
-    def _connectCallback(self, callable, window):
-        self._value_chosen_callback = callable
-        return False
+    def _connectCallback(self, callback, window):
+        # type: (Callable, Any) -> bool
+        self._value_chosen_callback = callback
+        return False # Don't use PyXBMCt's inbuilt connection mechanism
 
     def _placedCallback(self, window, *args, **kwargs):
-        """
-        Called once the button has been placed
-        """
         super(FakeEdit, self)._placedCallback(window, *args, **kwargs)
         window.connect(self._button, self.enter_value)

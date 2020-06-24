@@ -1,12 +1,20 @@
+"""Button with an icon and text"""
+import os
+try:
+    # typign not available on XBMC4Xbox
+    from typing import Any, Callable
+except:
+    pass
+
 import pyxbmct
 import xbmcaddon
-import os
 
 _addon = xbmcaddon.Addon()
 _addon_path = _addon.getAddonInfo("path")
 
 
 class ButtonWithIcon(pyxbmct.Group):
+    """Button with an icon and text"""
     def __new__(
         cls,
         text,
@@ -29,6 +37,15 @@ class ButtonWithIcon(pyxbmct.Group):
         *args,
         **kwargs
     ):
+        """:param text: text label for the button
+        :param icon_full_path: if False icon_filename is seen as a relative\
+                path from resources/media
+        :param icon_pad_x: pixel gap between the right hand edge of the\
+                button and the icon
+        :parm icon_pad_y: pixel gap between the top and bottom edges of the\
+                button and the icon
+        """
+        # type: (str, str, bool, int, int, Any, Any) -> None
         super(ButtonWithIcon, self).__init__(1, 2, *args, **kwargs)
         if not icon_full_path:
             icon_filename = os.path.join(
@@ -41,12 +58,18 @@ class ButtonWithIcon(pyxbmct.Group):
         self._icon_pad_y = icon_pad_y
 
     def get_button(self):
+        """:returns: the button component of the ButtonWithIcon"""
+        # type: () -> pyxbmct.Button
         return self._button
 
     def get_icon(self):
+        """:returns: the icon component of the ButtonWithIcon"""
+        # type: () -> pyxbmct.Image
         return self._icon
 
     def _icon_placed(self, window, row, column, rowspan, columnspan, pad_x, pad_y):
+        """Called after the icon has been placed in a window"""
+        # type: (Any, int, int, int, int, int, int) -> None
         icon_x, icon_y = self._icon.getPosition()
         icon_width = self._icon.getWidth()
         # Using the min of getWidth and getHeight as the image is square and
@@ -61,14 +84,20 @@ class ButtonWithIcon(pyxbmct.Group):
         self._icon.setPosition(new_icon_x, icon_y)
 
     def setEnabled(self, enabled):
+        """Overrides :pyxbmct.Group.setEnabled: (hence the camelcase)
+        
+        The icon becomes translucent when the button is disabled
+        """
+        # type: (bool) -> None
         self._button.setEnabled(enabled)
         if enabled:
             self._icon.setColorDiffuse("0xFFFFFFFF")
         else:
             self._icon.setColorDiffuse("0x5FFFFFFF")
 
-    def _connectCallback(self, callable, window):
-        window.connect(self._button, callable)
+    def _connectCallback(self, callback, window):
+        # type: (Callable, Any) -> bool
+        window.connect(self._button, callback)
         return False
 
     def _placedCallback(self, window, *args, **kwargs):
