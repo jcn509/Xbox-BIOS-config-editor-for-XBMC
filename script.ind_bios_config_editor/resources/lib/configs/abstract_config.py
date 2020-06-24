@@ -33,7 +33,7 @@ class AbstractConfig(object):
     __metaclass__ = ABCMeta
 
     def __init__(self, max_line_length=None, quote_char_if_whitespace=None):
-        """quote_char_if_whitespace is the optional quote character used to
+        """:param quote_char_if_whitespace: optional quote character used to\
         wrap values if they contain whitespace
         """
         # type: (int, str) -> None
@@ -66,29 +66,30 @@ class AbstractConfig(object):
             self.set(field, self._defaults[field])
 
     def defaults(self):
-        """Returns a dictionary with the default value for each field
-
-        (in Python format)
+        """:returns: a dictionary with the default value (in Python format)\
+                for each field
         """
         # type: () -> Dict[str, Any]
         return self._defaults
 
     def options(self):
-        """Returns all the options that can be set in the config file"""
+        """:returns: all the options that can be set in the config file"""
         # type: () -> Tuple[str, ...]
         return self._options
 
     @abstractmethod
     def _get_fields(self):
-        """Returns a tuple containing descriptions for each field"""
+        """:returns: descriptions (see :resources.lib.configs.config_field:)\
+                for each field
+        """
         # type: () -> Tuple[Any, ...]
         pass
 
     @abstractmethod
     def _get_true_if_fields_dont_have_values(self):
-        """Fields that should be set to True if at least one of the other
-        fields they refer to does not have a certain value (and False
-        otherwise)
+        """:returns: fields that should be set to True if at least one of the\
+                other fields they refer to does not have a certain value (and\
+                False otherwise)
         """
         # type: () -> Dict[str, Dict[str, Any]]
         pass
@@ -97,8 +98,8 @@ class AbstractConfig(object):
         """Read the config file with filename, and take the field values from
         it
 
-        If set_invalid_fields_to_default is False an error will be thrown if
-        any field has an invalid value
+        :param set_invalid_fields_to_default: if False an error will be thrown\
+                if any field has an invalid value
         """
         # type: (str, bool, Any, Any) -> None
         with open(filename) as fp:
@@ -124,8 +125,12 @@ class AbstractConfig(object):
     def readfp(self, fp, set_invalid_fields_to_default=True, *args, **kwargs):
         """Read from the file pointer object, and take the field values from it
         
-        If set_invalid_fields_to_default is False an error will be thrown if
-        any field has an invalid value
+        :param set_invalid_fields_to_default: if False an error will be\
+                thrown if any field has an invalid name or value
+        :raises ConfigFieldNameError: if set_invalid_fields_to_default is\
+                False and any field is an invalid name
+        :raises ConfigFieldValueError: if set_invalid_fields_to_default is False\
+                and any field has an invalid value
         """
         # type: (Any, bool, Any, Any) -> None
         stream = StringIO()
@@ -148,10 +153,13 @@ class AbstractConfig(object):
         self, set_invalid_fields_to_default=False
     ):
         """Validate option names and values in the config file format
-
-        If set_invalid_fields_to_default is True invalid fields will be set to
-        their default values otherwise an exception will be thrown for invalid
-        values
+        
+        :param set_invalid_fields_to_default: if False an error will be\
+                thrown if any field has an invalid name or value
+        :raises ConfigFieldNameError: if set_invalid_fields_to_default is\
+                False and any field is an invalid name
+        :raises ConfigFieldValueError: if set_invalid_fields_to_default is False\
+                and any field has an invalid value
         """
         # type: (bool) -> None
         for option in self.options():
@@ -159,22 +167,27 @@ class AbstractConfig(object):
             if set_invalid_fields_to_default:
                 try:
                     self._validate_option_name_and_value(
-                        option, value, value_is_in_config_format=True
+                        option, value, value_is_in_config_file_format=True
                     )
                 except ConfigError as e:
                     self.set_to_default(option)
             else:
                 self._validate_option_name_and_value(
-                    option, value, value_is_in_config_format=True
+                    option, value, value_is_in_config_file_format=True
                 )
 
     def _validate_option_name(self, option_name):
-        """Throw an error if option_name does not exist for this config file"""
+        """:raies ConfigFieldNameError: if option_name does not exist for\
+                this config file
+        """
+        # type: (str) -> None
+        option_name = self._format_option_name(option_name)
         if option_name not in self._options:
             raise ConfigFieldNameError(option_name + " is not a valid option")
 
     def _validate_config_file_line_length(self, option_name, value_in_config_format):
-        """Throw an error if the line in the config file will not be too long
+        """:raise ConfigFieldValueError: if the line in the config file would\
+                be too long for value_in_config_format
         """
         # type: (str, str) -> None
         if self._max_line_length is not None:
@@ -198,13 +211,13 @@ class AbstractConfig(object):
                 )
 
     def _validate_option_name_and_value(
-        self, option_name, value, value_is_in_config_format=False
+        self, option_name, value, value_is_in_config_file_format=False
     ):
-        """Throw an exception if the option does not exist or its value is not
-        valid
-        
-        Checks values in config format if value_is_in_config_format is True and
-        in Python format otherwise
+        """:param value_is_in_config_file_format: if True values are validated in\
+                config file format otherwise they are validated in Python\
+                format
+        :raises ConfigFieldNameError: if value is invalid
+        :raises ConfigFieldValueError: option_name is invalid
         """
         # type: (str, Any, bool) -> None
         self._validate_option_name(option_name)
@@ -213,7 +226,7 @@ class AbstractConfig(object):
         # (which is what we want as there will be no validator
         # if the option does not exist)
         validator = self._validators[option_name]
-        if value_is_in_config_format:
+        if value_is_in_config_file_format:
             validator.validate_in_config_file_format(value)
             self._validate_config_file_line_length(option_name, value)
         else:
@@ -233,9 +246,13 @@ class AbstractConfig(object):
     ):
         """Load a config file and use its values to set the values of certain
         fields in this config file.
-
-        if set_invalid_fields_to_default is False then an exception will be
-        thrown if the preset file contains any invalid field values
+        
+        :param set_invalid_fields_to_default: if False an error will be\
+                thrown if any field has an invalid name or value
+        :raises ConfigFieldNameError: if set_invalid_fields_to_default is\
+                False and any field is an invalid name
+        :raises ConfigFieldValueError: if set_invalid_fields_to_default is False\
+                and any field has an invalid value
         """
         # type: (str, Tuple[str, ...], bool) -> None
         if not os.path.isfile(filename):
@@ -253,53 +270,51 @@ class AbstractConfig(object):
         for field in fields_to_apply_to:
             self.set(field, preset_config.get(field))
 
-    def get(self, option, validate_option_name=True):
-        """Get the value of option in Python format"""
+    def get(self, option_name, validate_option_name=True):
+        """:returns: the value of option_name in Python format"""
         # type: (str, bool) ->  Any
-        if validate_option_name:
-            option = self._format_option_name(option)
-            self._validate_option_name(option)
-        value_in_config_format = self._get_in_config_file_format(option)
-        format_converter = self._format_converters[option]
+        if validate_option_name: 
+            self._validate_option_name(option_name)
+        value_in_config_format = self._get_in_config_file_format(option_name)
+        format_converter = self._format_converters[option_name]
         return format_converter.convert_to_python_format(value_in_config_format)
 
-    def _get_in_config_file_format(self, option):
-        """Get the value of option in config file format"""
+    def _get_in_config_file_format(self, option_name):
+        """:returns: the value of option_name in config file format"""
         # type: (str) -> str
-        return self._config_parser.get(ConfigParser.DEFAULTSECT, option)
+        return self._config_parser.get(ConfigParser.DEFAULTSECT, option_name)
 
-    def set_to_default(self, option):
+    def set_to_default(self, option_name):
         """Set the option to its default value"""
         # type: (str) -> None
-        option = self._format_option_name(option)
-        self.set(option, self._defaults[option])
+        option = self._format_option_name(option_name)
+        self.set(option_name, self._defaults[option_name])
 
-    def set(self, option, value, validate_option_name_and_value=True):
+    def set(self, option_name, value, validate_option_name_and_value=True):
         """Set the option to the value
 
         Python format must be used for the value
         """
         # type: (str, Any, bool) -> None
         if validate_option_name_and_value:
-            option = self._format_option_name(option)
-            self._validate_option_name_and_value(option, value)
-        format_converter = self._format_converters[option]
+            self._validate_option_name_and_value(option_name, value)
+        format_converter = self._format_converters[option_name]
         value_in_config_format = format_converter.convert_to_config_file_format(value)
-        return self._set_in_config_format(option, value_in_config_format)
+        return self._set_in_config_format(option_name, value_in_config_format)
 
-    def _set_in_config_format(self, option, value):
+    def _set_in_config_format(self, option_name, value):
         """Set the option to the value. No validation is performed
 
         config format must be used for the value
         """
         # type: (str, str) -> None
-        return self._config_parser.set(ConfigParser.DEFAULTSECT, option, value)
+        return self._config_parser.set(ConfigParser.DEFAULTSECT, option_name, value)
 
     def write(self, fp, dont_write_option_if_value_default=True):
         """Write the config out to the given config file
 
-        If dont_write_option_if_value_default is True then if an option has its
-        default value it won't be written to the file
+        :param dont_write_option_if_value_default: if True then if an option\
+                has its default value it won't be written to the file
         """
         # type: (Any, bool) -> None
         true_if_fields_dont_have_values = self._get_true_if_fields_dont_have_values()

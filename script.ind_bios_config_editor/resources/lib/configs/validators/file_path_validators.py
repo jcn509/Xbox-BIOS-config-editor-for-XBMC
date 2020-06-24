@@ -1,5 +1,6 @@
 """Validate file paths"""
 import re
+from ..config_errors import ConfigFieldValueError
 from .regex_pattern_match_validator import RegexPatternMatchValidator
 
 
@@ -50,8 +51,9 @@ class OptionalHDDFilePathValidator(HDDFilePathValidator):
     This means that files cannot be on the cache partitions (X, Y, Z)
     """
     def validate_in_config_file_format(self, file_path):
-        """Throw an error if file_path is not the string 0 or if it does not
-        start with \\Device\\Harddisk0\\Partition{1, 2, 6, 7} 
+        """:raises ConfigFieldValueError: if file_path is not the string 0 or\
+                if it does not start with \
+                \\Device\\Harddisk0\\Partition{1, 2, 6, 7} 
         """
         # type: (str) -> None
         if file_path != "0":
@@ -60,8 +62,8 @@ class OptionalHDDFilePathValidator(HDDFilePathValidator):
             )
 
     def validate_in_python_format(self, file_path):
-        """Throw an error if file_path is not None or does not start with
-        {C, E, F, G}:\\
+        """:raises ConfigFieldValueError: if file_path is not None or does\
+                not start with {C, E, F, G}:\\
         """
         # type: (str) -> None
         if file_path is not None:

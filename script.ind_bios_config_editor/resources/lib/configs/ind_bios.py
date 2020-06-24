@@ -18,13 +18,12 @@ class IndBiosConfig(AbstractConfig):
         )
 
     def _get_fields(self):
-        """Returns a tuple describing all the fields in the iND-BiOS"""
+        """:returns: a tuple describing all the fields in the iND-BiOS"""
         return IND_BIOS_FIELDS
     
     def _get_true_if_fields_dont_have_values(self):
-        """Values to set to True if other values have certain values
-
-        (or False otherwise)
+        """:returns: values to set to True if other values have certain\
+                values(or False otherwise)
         """
         # type: () -> Dict[str, Dict[str, Any]]
         return {

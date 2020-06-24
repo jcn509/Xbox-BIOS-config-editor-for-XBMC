@@ -41,7 +41,11 @@ class ValidatorFactoryError(Exception):
 
 
 def validator_factory(config_field):
-    """Create the appropriate validator for config_field"""
+    """Create an appropriate validator for a field
+
+    :param config_field: a config field description from :resoures.lib.configs.config_field:
+    :returns: a validator from :resources.lib.configs.validators:
+    """
     # type: (Any) ->  AbstractValidator
     if isinstance(config_field, BooleanField):
         return _BOOLEAN_VALIDATOR

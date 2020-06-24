@@ -18,13 +18,15 @@ class AbstractFormatConverter(object):
     @abstractmethod
     def convert_to_config_file_format(self, value):
         """Convert the given value from its Python format to its config file
-        format"""
+        format
+        """
         # type: (Any) -> str
         raise NotImplementedError
 
     @abstractmethod
     def convert_to_python_format(self, value):
         """Convert the given value from its config file format to its Python
-        format"""
+        format
+        """
         # type: (str) -> Any
         raise NotImplementedError

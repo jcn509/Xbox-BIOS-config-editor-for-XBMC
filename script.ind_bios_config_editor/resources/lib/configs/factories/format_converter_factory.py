@@ -41,8 +41,10 @@ class FormatConverterFactoryError(Exception):
 
 
 def format_converter_factory(config_field):
-    """Returns a format convert object that is appropriate for the given
-    config_field
+    """Create a format converter for a field
+
+    :param config_field: a config field description from :resoures.lib.configs.config_field:
+    :returns: an object of a class from :resources.lib.format_converters:
     """
     # type: (Any) -> AbstractFormatConverter
     if isinstance(config_field, BooleanField):

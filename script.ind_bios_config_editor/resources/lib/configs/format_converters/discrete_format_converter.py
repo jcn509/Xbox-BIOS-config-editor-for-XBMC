@@ -19,13 +19,11 @@ class DiscreteFormatConverter(AbstractFormatConverter):
         self._values = tuple(values)
 
     def convert_to_config_file_format(self, value):
-        """Returns the index (as a string) at which the value exists in the
-        tuple
-        """
+        """:returns: the index (as a string) at which the value exists in the tuple"""
         # type: (str) -> str
         return str(self._values.index(value))
 
     def convert_to_python_format(self, index):
-        """Returns the str at the index supplied"""
+        """:returns: the str at the index supplied"""
         # type: (str) -> str
         return self._values[int(index)]

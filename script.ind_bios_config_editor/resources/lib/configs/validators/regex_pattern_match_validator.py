@@ -9,8 +9,8 @@ try:
 except:
     pass
 
-from .abstract_validator import AbstractValidator, raise_error
-
+from .abstract_validator import AbstractValidator
+from ..config_errors import ConfigFieldValueError
 
 class RegexPatternMatchValidator(AbstractValidator):
     """Validator that ensures that values in Python and config file format
@@ -36,12 +36,12 @@ class RegexPatternMatchValidator(AbstractValidator):
             self._config_regex_pattern = self._python_regex_pattern
 
     def _validate_against_regex(self, value, regex):
-        """Helper method. Throws an error if value is not a string or does not
-        match regex
+        """:raises ConfigFieldValueError: if value is not a string or does\
+                not match regex
         """
         # type: (str, Pattern) -> None
         if not isinstance(value, basestring):
-            raise_error(
+            raise ConfigFieldValueError(
                 str(value)
                 + " is invalid. Value must be a string that matches pattern "
                 + regex.pattern
@@ -50,17 +50,17 @@ class RegexPatternMatchValidator(AbstractValidator):
             error_message = self._error_message
             if error_message is None:
                 error_message = "must match pattern: " + regex.pattern
-            raise_error(value + " is invalid. " + error_message)
+            raise ConfigFieldValueError(value + " is invalid. " + error_message)
 
     def validate_in_config_file_format(self, value):
-        """Throws an error if value is not a string or does not match
-        config_regex_pattern if that was suppplied or python_regex_pattern if
-        it was not
+        """:raises ConfigFieldValueError: if value is not a string or does\
+                not match config_regex_pattern if that was suppplied or\
+                python_regex_pattern ifit was not
         """
         self._validate_against_regex(value, self._config_regex_pattern)
 
     def validate_in_python_format(self, value):
-        """Throws an error if value is not a string or does not match
-        python_regex_pattern
+        """:raises ConfigFieldValueError: if value is not a string or does\
+                not match python_regex_pattern
         """
         self._validate_against_regex(value, self._python_regex_pattern)

@@ -9,8 +9,8 @@ try:
     from typing import Tuple
 except:
     pass
-from .abstract_validator import AbstractValidator, raise_error
-
+from .abstract_validator import AbstractValidator
+from ..config_errors import ConfigFieldValueError
 
 class DiscreteValidator(AbstractValidator):
     """Validate values that should be:
@@ -33,21 +33,21 @@ class DiscreteValidator(AbstractValidator):
         self._config_format_values = config_format_values
 
     def validate_in_config_file_format(self, value):
-        """Throw an error if the value is not in config_format_values if that
-        was supplied or an index (as a string) of a value in
-        python_format_values
+        """:raises ConfigFieldValueError: if value is not in\
+                config_format_values if that was supplied or an index (as a\
+                string) of a value in python_format_values if it was not
         """
         if value not in self._config_format_values:
-            raise_error(
+            raise ConfigFieldValueError(
                 value
                 + " is not valid value must be one of "
                 + str(self._config_format_values)
             )
 
     def validate_in_python_format(self, value):
-        """Throw an error if the value is not in python_format_values"""
+        """:raises ConfigFieldValueError: if value is not in python_format_values"""
         if value not in self._python_format_values:
-            raise_error(
+            raise ConfigFieldValueError(
                 value
                 + " is not valid value must be one of "
                 + str(self._python_format_values)
