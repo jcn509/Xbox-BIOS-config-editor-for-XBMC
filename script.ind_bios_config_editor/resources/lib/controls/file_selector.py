@@ -25,7 +25,7 @@ class FileSelector(AbstractControl, ButtonWithIcon):
     """
     def __new__(
         cls,
-        default="Select File",
+        default_filename="Select File",
         update_label_on_select=True,
         browse_type=1,
         file_select_window_title="Select File",
@@ -41,12 +41,12 @@ class FileSelector(AbstractControl, ButtonWithIcon):
     ):
         icon = _get_icon_filename(browse_type, custom_icon)
         return super(FileSelector, cls).__new__(
-            cls, default, icon, icon_pad_x=10, *args, **kwargs
+            cls, default_filename, icon, icon_pad_x=10, *args, **kwargs
         )
 
     def __init__(
         self,
-        default="Select File",
+        default_filename="Select File",
         update_label_on_select=True,
         browse_type=1,
         file_select_window_title="Select File",
@@ -61,7 +61,8 @@ class FileSelector(AbstractControl, ButtonWithIcon):
         **kwargs
     ):
         """Please also see the docs for xbmcgui.Dialog.browse
-        :param default: the text to display/file to be selected by default
+        :param default_filename: the text to display/file to be selected by\
+                default
         :param update_label_on_select: update the label on the button when a\
                 file is selected
         :param browse_type: see docs for xbmcgui.Dialog.browse
@@ -76,7 +77,7 @@ class FileSelector(AbstractControl, ButtonWithIcon):
         # type: (str, bool, int, str, str, str, bool, bool, str, int, int, Any, Any) -> None
         icon = _get_icon_filename(browse_type, custom_icon)
         super(FileSelector, self).__init__(
-            default, icon, icon_pad_x=icon_pad_x, icon_pad_y=icon_pad_y, *args, **kwargs
+            default_filename, icon, icon_pad_x=icon_pad_x, icon_pad_y=icon_pad_y, *args, **kwargs
         )
         self._browse_type = browse_type
         self._file_select_window_title = file_select_window_title
@@ -85,7 +86,7 @@ class FileSelector(AbstractControl, ButtonWithIcon):
         self._use_thumbs = use_thumbs
         self._treat_as_folder = treat_as_folder
         self._update_label_on_select = update_label_on_select
-        self._current_selection = default
+        self._current_selection = default_filename
 
         self._file_chosen_callback = None
 

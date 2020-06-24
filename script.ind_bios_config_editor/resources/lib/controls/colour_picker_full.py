@@ -73,7 +73,7 @@ class ColourPickerFull(AbstractControl, pyxbmct.Group):
             callback = lambda value, pos=modify_colour_position: self._modify_colour(
                 pos, value
             )
-            slider = FakeSlider(default_value=initial_value, picker_title=label_text)
+            slider = FakeSlider(default_value=initial_value, keyboard_title=label_text)
             window.connect(slider, callback)
             self.placeControl(slider, i, 1, columnspan=4, pad_y=10)
             modify_colour_position += 2

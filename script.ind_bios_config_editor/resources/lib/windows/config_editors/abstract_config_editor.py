@@ -10,6 +10,7 @@ try:
     from ...configs import AbstractConfig
 except:
     pass
+
 import xbmcgui
 import pyxbmct
 

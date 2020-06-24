@@ -36,7 +36,8 @@ class RadioButton(AbstractControl, pyxbmct.RadioButton):
     def get_value(self):
         """True if the radio button is on else False"""
         # type: () -> bool
-        return super(RadioButton, self).isSelected()
+        # isSelected seems to return a 1 or 0 rather than True or False
+        return bool(super(RadioButton, self).isSelected())
 
     def _connect_callback_wrapper(self, callback):
         # type: (Callable) -> None
