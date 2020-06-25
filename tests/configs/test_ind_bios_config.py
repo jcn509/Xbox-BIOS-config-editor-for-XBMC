@@ -1,3 +1,4 @@
+"""Tests for the IndBiosConfig class"""
 import re
 import sys
 import os
@@ -18,6 +19,7 @@ CONFIG_DEFAULTS = {option: DEFAULT_CONFIG.get(option) for option in CONFIG_OPTIO
 
 
 def sub_lists(list1):
+    """:returns: all possible sublists for the input"""
     # store all the sublists
     sublists = [[]]
 
@@ -34,21 +36,23 @@ def sub_lists(list1):
 
 
 def get_config_file_path(filename):
+    """:returns: the full path for a given test config file"""
     return os.path.join(TEST_CONFIG_DIR, filename)
 
 
 def get_config_editor_for_file(filename):
+    """:returns: an IndBiosConfig instance that is using the values specified\
+            for all fields that are defined in filename and default values\
+            for all the other fields
+    """
     config_editor = IndBiosConfig()
     config_editor.read(filename)
     return config_editor
 
 
 def get_config_editors_for_each_file(filenames):
-    config_editors = []
-    for filename in filenames:
-        config_editor = get_config_editor_for_file(filename)
-        config_editors.append(config_editor)
-    return config_editors
+    """:returns: a list of IndBiosConfig one for each file in filenames"""
+    return [get_config_editor_for_file(filename) for filename in filenames]
 
 
 ALL_CONFIG_FILES = tuple(
@@ -58,6 +62,7 @@ ALL_CONFIG_FILES = tuple(
 
 @pytest.mark.parametrize("filename", ["valid1.cfg"])
 def test_parse_valid_config_no_errors(filename):
+    """Ensures that no exceptions are thrown when parsing a valid confi"""
     filename = get_config_file_path(filename)
     IndBiosConfig().read(filename)
 
@@ -69,6 +74,9 @@ def test_parse_valid_config_no_errors(filename):
 def test_parse_invalid_field_reset_to_default(
     filename, field_that_is_reset, other_fields_that_should_not_be_reset
 ):
+    """Ensures that invalid fields are set to default when read from a file
+    if they are supposed to be
+    """
     config = IndBiosConfig()
     filename = get_config_file_path(filename)
     config.read(filename, True)
@@ -93,6 +101,9 @@ def test_parse_invalid_field_reset_to_default(
     ],
 )
 def test_parse_invalid(filename):
+    """Ensures that an exception is thrown when parsing an invalid config file
+    if it is supposed to be
+    """
     config = IndBiosConfig()
     with pytest.raises(ConfigFieldValueError):
         filename = get_config_file_path(filename)
@@ -101,6 +112,9 @@ def test_parse_invalid(filename):
 
 @pytest.mark.parametrize("config", get_config_editors_for_each_file(ALL_CONFIG_FILES))
 def test_config_file_output_no_changes(config):
+    """A config file is read by IndBiosConfig then a copy is written to disk.
+    This test ensures that both files contain the same values
+    """
     with tempfile.TemporaryFile() as written_file_pointer:
         config.write(written_file_pointer)
         written_file_pointer.seek(os.SEEK_SET)
@@ -140,6 +154,7 @@ def test_config_file_output_no_changes(config):
     ],
 )
 def test_set_value_valid(option, value):
+    """Ensures that valid values are set correctly"""
     config = IndBiosConfig()
     config.set(option, value)
     assert config.get(option) == value, "value set correctly"
@@ -186,6 +201,9 @@ def test_set_value_valid(option, value):
     ],
 )
 def test_set_value_invalid(option, value):
+    """Ensures that exceptions are thrown when trying to set invalid values
+    and that the value is not actually set
+    """
     config = IndBiosConfig()
     old_value = config.get(option)
     with pytest.raises(ConfigFieldValueError):
@@ -203,6 +221,9 @@ def test_set_value_invalid(option, value):
     ],
 )
 def test_load_preset(preset_filename, preset_config, apply_to_fields):
+    """Ensures that presets can be loaded and the values will only be applied
+    to the fields that they are meant to be applied to
+    """
     config = IndBiosConfig()
     config.load_preset(preset_filename, apply_to_fields)
 

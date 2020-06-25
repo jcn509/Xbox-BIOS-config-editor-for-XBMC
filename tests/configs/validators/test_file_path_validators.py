@@ -1,3 +1,11 @@
+"""Tests for DVDFilePathValidator, HDDFilePathValidator and
+OptionalHDDFilePathValidator from configs.validators
+
+Valid file paths in Python format are of the form C:\\...
+Valid file paths in config file format are of the form \\Device\\...
+Valid optional file paths may be None in Python format or 0 in config file
+format
+"""
 from itertools import chain
 import pytest
 
@@ -96,18 +104,28 @@ def _get_file_extension(path):
 
 
 def _get_all_file_extensions(paths):
+    """Returns a set of all the file extensions for all the file paths in 
+    paths
+    """
     return {_get_file_extension(path) for path in paths}
 
 
 def _pair_by_file_extension(paths):
+    """return a tuple whose elements are tuples where the first element is a
+    path from paths and the second is the file extension
+    """
     return ((_get_file_extension(path), path) for path in paths)
 
 
 def _get_params(validator_classes, paths):
+    """Returns a tuple containing tuples that of the form
+    (validator_class, file_path, file extension) for every combination of
+    values in validator_classes and paths
+    """
     return (
-        (validator_class, file, extension)
+        (validator_class, file_path, extension)
         for validator_class in validator_classes
-        for file, extension in _pair_by_file_extension(paths)
+        for file_path, extension in _pair_by_file_extension(paths)
     )
 
 
@@ -125,6 +143,12 @@ def _get_params(validator_classes, paths):
     ),
 )
 def test_validate_in_config_file_format_valid(validator_class, extension, path):
+    """Ensures that no errors are thrown when validating valid file paths in
+    config file format
+
+    Valid file paths in config file format are of the form \\Device\\...
+    Valid optional file paths may be 0
+    """
     validator = validator_class(extension)
     validator.validate_in_config_file_format(path)
 
@@ -164,6 +188,9 @@ def test_validate_in_config_file_format_valid(validator_class, extension, path):
     ),
 )
 def test_validate_in_config_file_format_invalid(validator_class, extension, path):
+    """Ensures that a ConfigFieldValueError is thrown when parsing an invalid
+    path in config file format
+    """
     extension = extension if extension is not None else ""
     validator = validator_class(extension)
     with pytest.raises(ConfigFieldValueError) as excinfo:
@@ -186,6 +213,13 @@ def test_validate_in_config_file_format_invalid(validator_class, extension, path
     ),
 )
 def test_validate_in_python_format_valid(validator_class, extension, path):
+    """Ensures that no errors are thrown when validating valid file paths in
+    Python format
+
+
+    Valid file paths in Python format are of the form C:\\...
+    Valid optional file paths may be None
+    """
     validator = validator_class(extension)
     validator.validate_in_python_format(path)
 
@@ -225,7 +259,10 @@ def test_validate_in_python_format_valid(validator_class, extension, path):
         ),
     ),
 )
-def test_validate_in_pythoon_format_invalid(validator_class, extension, path):
+def test_validate_in_python_format_invalid(validator_class, extension, path):
+    """Ensures that a ConfigFieldValueError is thrown when parsing an invalid
+    path in Python format
+    """
     extension = extension if extension is not None else ""
     validator = validator_class(extension)
     with pytest.raises(ConfigFieldValueError) as excinfo:
