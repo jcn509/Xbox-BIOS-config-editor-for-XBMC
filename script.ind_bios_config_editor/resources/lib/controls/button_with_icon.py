@@ -2,8 +2,8 @@
 import os
 
 try:
-    # typign not available on XBMC4Xbox
-    from typing import Any, Callable
+    # typing not available on XBMC4Xbox
+    from typing import Any, Callable, Union
 except:
     pass
 
@@ -32,7 +32,7 @@ class ButtonWithIcon(pyxbmct.Group):
     def __init__(
         self,
         text,
-        icon_filename,
+        icon,
         icon_full_path=False,
         icon_pad_x=5,
         icon_pad_y=5,
@@ -40,22 +40,28 @@ class ButtonWithIcon(pyxbmct.Group):
         **kwargs
     ):
         """:param text: text label for the button
-        :param icon_full_path: if False icon_filename is seen as a relative\
+        :param icon: either an icon filename or a :pyxbmct.Image:
+        :param icon_full_path: if False icon filename is seen as a relative\
                 path from resources/media
         :param icon_pad_x: pixel gap between the right hand edge of the\
                 button and the icon
         :parm icon_pad_y: pixel gap between the top and bottom edges of the\
                 button and the icon
         """
-        # type: (str, str, bool, int, int, Any, Any) -> None
+        # type: (str, Union[str, pyxbmct.Image], bool, int, int, Any, Any) -> None
         super(ButtonWithIcon, self).__init__(1, 2, *args, **kwargs)
-        if not icon_full_path:
-            icon_filename = os.path.join(
-                _addon_path, "resources", "media", icon_filename
-            )
+        
 
+        if isinstance(icon, pyxbmct.Image):
+            self._icon = icon # type: pyxbmct.Image
+        else:
+            if not icon_full_path:
+                icon = os.path.join(
+                    _addon_path, "resources", "media", icon
+                )    
+            self._icon = pyxbmct.Image(icon, aspectRatio=2)
+        
         self._button = pyxbmct.Button(text)
-        self._icon = pyxbmct.Image(icon_filename, aspectRatio=2)
         self._icon_pad_x = icon_pad_x
         self._icon_pad_y = icon_pad_y
 
@@ -72,17 +78,18 @@ class ButtonWithIcon(pyxbmct.Group):
     def _icon_placed(self, window, row, column, rowspan, columnspan, pad_x, pad_y):
         """Called after the icon has been placed in a window"""
         # type: (Any, int, int, int, int, int, int) -> None
-        icon_x, icon_y = self._icon.getPosition()
         icon_width = self._icon.getWidth()
         # Using the min of getWidth and getHeight as the image is square and
         # this gives the width of the actual image, rather than the width of the
         # image object which may be very wide
         icon_side = min(icon_width, self._icon.getHeight())
 
-        button_x, button_y = self._button.getPosition()
+        button_x, _ = self._button.getPosition()
         button_width = self._button.getWidth()
 
         new_icon_x = button_x + button_width - ((icon_side + icon_width) / 2 + pad_x)
+        
+        _, icon_y = self._icon.getPosition()
         self._icon.setPosition(new_icon_x, icon_y)
 
     def setEnabled(self, enabled):
@@ -99,6 +106,8 @@ class ButtonWithIcon(pyxbmct.Group):
 
     def _connectCallback(self, callback, window):
         # type: (Callable, Any) -> bool
+        # Connect the callback to the button instead
+        # as that is what PyXBMCt will see being clicked
         window.connect(self._button, callback)
         return False
 

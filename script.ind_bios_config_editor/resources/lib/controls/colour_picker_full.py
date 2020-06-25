@@ -27,22 +27,30 @@ class ColourPickerFull(AbstractControl, pyxbmct.Group):
                 characters represent the alpha channel
         """
         # type: (bool, str, Any, Any) -> None
-        self._current_colour = default_colour
+        self._current_colour = self._get_colour_in_correct_format(default_colour)
 
         num_rows = 3
 
         if alpha_selector:
             num_rows += 1
-        else:
-            if default_colour[0:2] == "0x":
-                if len(default_colour) == 10:
-                    default_colour = default_colour[0:2] + default_colour[4:]
-            elif len(default_colour) == 8:
-                default_colour = default_colour[2:]
+         
         super(ColourPickerFull, self).__init__(num_rows, 7, *args, **kwargs)
 
         self._num_rows = num_rows
         self._alpha_selector = alpha_selector
+    
+    def _get_colour_in_correct_format(self, colour):
+        """Remove alpha component if it shouldn't be there"""
+        # type: (str) -> str
+        if not self._alpha_selector:
+            if colour[0:2] == "0x":
+                if len(colour) == 10:
+                    colour = colour[0:2] + colour[4:]
+            elif len(colour) == 8:
+                colour = colour[2:]
+        
+        return colour
+
 
     def _connectCallback(self, callback, window):
         # type: (Callable, Any) -> bool
@@ -86,6 +94,7 @@ class ColourPickerFull(AbstractControl, pyxbmct.Group):
         :param trigger_callback: if False then the colour chosen callback\
                 will not be triggered
         """
+        colour = self._get_colour_in_correct_format(colour)
         # type (str, bool) -> None
         self._current_colour = colour
         self._colour_square.setColorDiffuse(self._current_colour)

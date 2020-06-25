@@ -11,7 +11,7 @@ _addon_path = _addon.getAddonInfo("path")
 class _ColourSquare(pyxbmct.Image):
     """A helper control that displays a square with a given colour"""
 
-    def __new__(cls, colorDiffuse):
+    def __new__(cls, color_diffuse):
         # parameter not used here. Not camel cae as that is not the convetion
         # used in PyXBMCt.
         image_file = os.path.join(
@@ -19,21 +19,21 @@ class _ColourSquare(pyxbmct.Image):
         )
         return super(_ColourSquare, cls).__new__(cls, image_file, aspectRatio=2)
 
-    def __init__(self, colorDiffuse):
+    def __init__(self, color_diffuse):
         # type: (str) -> None
         # parameter not used here. Not camel cae as that is not the convetion
         # used in PyXBMCt.
-        self.setColorDiffuse(colorDiffuse)
+        self.setColorDiffuse(color_diffuse)
 
-    def setColorDiffuse(self, colorDiffuse):
+    def setColorDiffuse(self, color_diffuse):
         """Override of the method from pyxbmct.Image
         
         :param colorDiffuse: a hex colour e.g. FFAA00, FFAAAABB, 0xFFFFFF
         """
         # type: (str) -> None
-        if colorDiffuse[0:2] == "0x":
-            if len(colorDiffuse) < 10:
-                colorDiffuse = colorDiffuse[0:2] + "FF" + colorDiffuse[2:]
-        elif len(colorDiffuse) < 8:
-            colorDiffuse = "FF" + colorDiffuse
-        super(_ColourSquare, self).setColorDiffuse(colorDiffuse)
+        if color_diffuse[0:2] == "0x":
+            if len(color_diffuse) < 10:
+                color_diffuse = color_diffuse[0:2] + "FF" + color_diffuse[2:]
+        elif len(color_diffuse) < 8:
+            color_diffuse = "FF" + color_diffuse
+        super(_ColourSquare, self).setColorDiffuse(color_diffuse)
