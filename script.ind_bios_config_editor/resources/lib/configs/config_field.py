@@ -1,4 +1,9 @@
+"""Named tuples used to define config fields"""
+
 from collections import namedtuple
+
+# typing not available on XBMC4XBOX
+_TYPE_CHECKING = False
 
 _CONFIG_FIELDS = (
     "field_name",

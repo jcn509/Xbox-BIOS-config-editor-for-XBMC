@@ -1,20 +1,36 @@
-import xbmcgui
-import pyxbmct
-from ... import controls
-from .reset_to_default import ResetToDefault
+"""Abstract config editor window. Contains common functionality"""
+
 from collections import OrderedDict
 from abc import ABCMeta, abstractmethod
 
+try:
+    # typing is not available on XBMC4Xbox
+    from typing import Any
+
+    # For typing purposes only
+    from ...configs import AbstractConfig
+except:
+    pass
+
+import xbmcgui
+import pyxbmct
+
+from ... import controls
+from .reset_to_default import ResetToDefault
+
 
 class AbstractConfigEditor(pyxbmct.AddonDialogWindow):
+    """Abstract config editor window. Contains common functionality"""
+
     __metaclass__ = ABCMeta
 
-    # Using __new__ here is necessary otherwise config_filename gets passed to the
-    # constructor of some ancestor class which causes an error
+    # Using __new__ here is necessary otherwise config_filename gets passed to
+    # some ancestor class which causes an error
     def __new__(cls, config_filename, *args, **kwargs):
         return super(AbstractConfigEditor, cls).__new__(cls, *args, **kwargs)
 
     def __init__(self, config_filename, *args, **kwargs):
+        # type: (str, Any, Any) -> None
         super(AbstractConfigEditor, self).__init__(self._get_window_title())
 
         self._config_filename = config_filename
@@ -50,13 +66,16 @@ class AbstractConfigEditor(pyxbmct.AddonDialogWindow):
 
     @abstractmethod
     def _create_config(self):
+        # type: () -> AbstractConfig
         pass
 
     @abstractmethod
     def _get_window_title(self):
+        # type: () -> str
         pass
 
     def close(self):
+        # type: () -> None
         close = True
         if self._unsaved_changes:
             dialog = xbmcgui.Dialog()
@@ -71,6 +90,10 @@ class AbstractConfigEditor(pyxbmct.AddonDialogWindow):
             super(AbstractConfigEditor, self).close()
 
     def save_config(self):
+        """Save the config to the HDD. Creates a popup dialogue window that
+        asks for confirmation first
+        """
+        # type: () -> None
         dialog = xbmcgui.Dialog()
         save = dialog.yesno(
             "Save Changes?",
@@ -84,10 +107,12 @@ class AbstractConfigEditor(pyxbmct.AddonDialogWindow):
                 self._config.write(config_file)
 
     def reset_to_default(self, tab_names):
+        """Reset these tabs to default"""
         for tab in tab_names:
             self._tab_groups[tab].reset_to_default()
 
     def _reset_to_default_button_clicked(self):
+        # type: () -> None
         reset_to_default_window = ResetToDefault(
             self._tab_groups.keys(), self.reset_to_default
         )
@@ -95,9 +120,12 @@ class AbstractConfigEditor(pyxbmct.AddonDialogWindow):
         del reset_to_default_window
 
     def _change_made_in_tab(self, field, value):
+        """Callback for when some change is made in some tab"""
+        # type: (str, Any) -> None
         self._unsaved_changes = True
 
     def _create_tabs(self, form_config):
+        """Create all the tabs that are displayed"""
         self._tab_groups = OrderedDict()
 
         for tab in form_config:
@@ -127,6 +155,8 @@ class AbstractConfigEditor(pyxbmct.AddonDialogWindow):
             self.connect(button, lambda tab=title: self.switch_tab(tab))
 
     def _initialise_navigation(self):
+        """Set up the navigation between all the controls"""
+        # type: () -> None
         # Some initialisation is done further down
         self._tab_menu_buttons_control_down = {}
         self._menu_bar_buttons_control_up = {}
@@ -178,6 +208,10 @@ class AbstractConfigEditor(pyxbmct.AddonDialogWindow):
         self._tab_groups[tab_name].setEnabled(True)
 
     def switch_tab(self, tab_name):
+        """Hide and disable the current tab and make the given tab visible and
+        usable
+        """
+        # type: (str) -> None
         # Stops errors when the user switches tabs too fast
         if self._tab_switching_enabled and self._current_tab != tab_name:
             self._tab_switching_enabled = False
@@ -228,6 +262,7 @@ class AbstractConfigEditor(pyxbmct.AddonDialogWindow):
         self._menu_bar_buttons["Reset To Default"] = self._reset_button
 
     def setAnimation(self, control):
+        """Override of the PyXBMCt method (hence the camelCase)"""
         # Set fade animation for all add-on window controls
         control.setAnimations(
             [

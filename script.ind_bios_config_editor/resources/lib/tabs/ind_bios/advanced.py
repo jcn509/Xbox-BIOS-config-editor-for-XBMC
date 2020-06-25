@@ -28,8 +28,8 @@ class Advanced(AbstractIndBiosTab):
         self._place_and_link(
             "MACADDR",
             controls.FakeEdit(
-                default="00:00:00:00:00:00",
-                heading="Change MAC Address Note: 00:00:00:00:00:00 = From eeprom",
+                default_value="00:00:00:00:00:00",
+                keyboard_title="Change MAC Address Note: 00:00:00:00:00:00 = From eeprom",
             ),
             2,
             1,

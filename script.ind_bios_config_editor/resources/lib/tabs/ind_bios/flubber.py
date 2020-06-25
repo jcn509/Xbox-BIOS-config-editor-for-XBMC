@@ -86,7 +86,7 @@ class Flubber(AbstractIndBiosTab):
         self._place_and_link(
             "BLOBRADI",
             controls.FakeSlider(
-                min_value=0, max_value=100, picker_title="Radi of the blob"
+                min_value=0, max_value=100, keyboard_title="Radi of the blob"
             ),
             5,
             3,
@@ -96,7 +96,9 @@ class Flubber(AbstractIndBiosTab):
         self._place_label("Custom blob", 6, 0)
         self._place_and_link(
             "CUSTOMBLOB",
-            controls.FileSelectorOrZero(heading="Custom blob", mask=".x"),
+            controls.FileSelectorOrZero(
+                file_select_window_title="Custom blob", mask=".x"
+            ),
             6,
             1,
             columnspan=5,

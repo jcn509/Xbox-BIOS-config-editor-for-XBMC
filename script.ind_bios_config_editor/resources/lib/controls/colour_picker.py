@@ -1,3 +1,10 @@
+"""Colour pickers"""
+
+try:
+    # typing not available on XBMC4Xbox
+    from typing import Any, Callable
+except:
+    pass
 import pyxbmct
 import xbmc
 from .fake_slider import FakeSlider
@@ -12,6 +19,10 @@ from .abstract_control import AbstractControl
 
 
 class ColourPicker(AbstractControl, pyxbmct.Group):
+    """Colour picker button that displays the Current colour and opens a
+    colour picker window when clicked
+    """
+
     def __new__(
         cls,
         window_title="Choose Colour",
@@ -30,6 +41,13 @@ class ColourPicker(AbstractControl, pyxbmct.Group):
         *args,
         **kwargs
     ):
+        """:param alpha_selector: if True then you can also pick the colour's\
+                alpha component
+        :param default_colour: a hexadecimal colour string optionally\
+                prefixed with 0x. If alpha_selector is True then the first 2\
+                characters represent the alpha channel
+        """
+        # type: (str, bool, str, Any, Any) -> None
         super(ColourPicker, self).__init__(1, 2, *args, **kwargs)
 
         if not alpha_selector:
@@ -46,6 +64,13 @@ class ColourPicker(AbstractControl, pyxbmct.Group):
         self._colour_chosen_callback = None
 
     def set_value(self, colour, trigger_callback=True):
+        """:param colour: is a hexadecimal colour string\
+                e.g. 0xFFFFFF or 000000 or FFFFFFFF if you have an alpha\
+                channel
+        :param trigger_callback: if False then the colour chosen callback\
+                will not be triggered
+        """
+        # type (str, bool) -> None
         self._current_colour = colour
         self._button.setLabel(colour)
         self._colour_square.setColorDiffuse(colour)
@@ -53,9 +78,15 @@ class ColourPicker(AbstractControl, pyxbmct.Group):
             self._colour_chosen_callback(colour)
 
     def get_value(self):
+        """:returns: a hexadecimal colour string\
+                e.g. 0xFFFFFF or 000000 or FFFFFFFF if you have an alpha\
+                channel
+        """
+        # type: () -> str
         return self._current_colour
 
     def pick_colour(self):
+        """Open the colour picker window so you can pick a new colour"""
         # Windows also imports Controls. To avoid circular import issues the
         # importing of windows is delayed until now.
         from .. import windows
@@ -74,6 +105,7 @@ class ColourPicker(AbstractControl, pyxbmct.Group):
     def _colour_square_placed(
         self, window, row, column, rowspan, columnspan, pad_x, pad_y
     ):
+        # type: (Any, int, int, int, int, int, int) -> None
         square_x, square_y = self._colour_square.getPosition()
         square_width = self._colour_square.getWidth()
         # Using the min of getWidth and getHeight as the image is square and
@@ -91,9 +123,10 @@ class ColourPicker(AbstractControl, pyxbmct.Group):
         )
         self._colour_square.setPosition(new_square_x, square_y)
 
-    def _connectCallback(self, callable, window):
-        self._colour_chosen_callback = callable
-        return False
+    def _connectCallback(self, callback, window):
+        # type: (Callable, Any) ->  None
+        self._colour_chosen_callback = callback
+        return False  # Don't use PyXBMCt's default connection mechanism
 
     def _placedCallback(self, window, *args, **kwargs):
         """

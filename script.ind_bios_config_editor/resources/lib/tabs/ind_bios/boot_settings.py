@@ -11,7 +11,7 @@ class BootSettings(AbstractIndBiosTab):
         self._place_label("Dash 1", 0, 0)
         self._place_and_link(
             "DASH1",
-            controls.FileSelector(heading="Dash 1", mask=".xbe"),
+            controls.FileSelector(file_select_window_title="Dash 1", mask=".xbe"),
             0,
             1,
             columnspan=9,
@@ -19,7 +19,7 @@ class BootSettings(AbstractIndBiosTab):
         self._place_label("Dash 2", 1, 0)
         self._place_and_link(
             "DASH2",
-            controls.FileSelector(heading="Dash 2", mask=".xbe"),
+            controls.FileSelector(file_select_window_title="Dash 2", mask=".xbe"),
             1,
             1,
             columnspan=9,
@@ -27,7 +27,7 @@ class BootSettings(AbstractIndBiosTab):
         self._place_label("Dash 3", 2, 0)
         self._place_and_link(
             "DASH3",
-            controls.FileSelector(heading="Dash 3", mask=".xbe"),
+            controls.FileSelector(file_select_window_title="Dash 3", mask=".xbe"),
             2,
             1,
             columnspan=9,
@@ -35,7 +35,9 @@ class BootSettings(AbstractIndBiosTab):
         self._place_label("Default XBE", 3, 0)
         self._place_and_link(
             "DEFAULTXBE",
-            controls.FakeEdit(default="Default XBE", heading="Default XBE"),
+            controls.FakeEdit(
+                default_value="Default XBE", keyboard_title="Default XBE"
+            ),
             3,
             1,
             columnspan=9,

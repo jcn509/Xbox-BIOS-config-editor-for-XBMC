@@ -34,8 +34,8 @@ class AbstractTab(pyxbmct.Group):
             self._value_changed_callback(field, value)
         self._config.set(field, value)
 
-    def _connectCallback(self, callable, window):
-        self._value_changed_callback = callable
+    def _connectCallback(self, callback, window):
+        self._value_changed_callback = callback
         return False
 
     def _set_control_value(self, field, value, trigger_callback=True):
@@ -80,9 +80,9 @@ class AbstractTab(pyxbmct.Group):
 
     def _place_load_preset_button(self, row, column, columnspan=None, *args, **kwargs):
         self._load_preset_button = controls.FileSelector(
-            default="Load Preset",
+            default_filename="Load Preset",
             update_label_on_select=False,
-            heading="Load Preset",
+            file_select_window_title="Load Preset",
             icon_pad_x=7,
             custom_icon="file_arrow_up.png",
         )

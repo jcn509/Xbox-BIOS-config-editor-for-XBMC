@@ -1,3 +1,14 @@
+"""Factory to produce format converter objects"""
+
+try:
+    # typing module not available on XBMC4XBOX
+    from typing import Any, TYPE_CHECKING
+
+    if TYPE_CHECKING:
+        from ..format_converters import AbstractFormatConverter
+except:
+    pass
+
 from ..config_field import (
     BooleanField,
     IntegerField,
@@ -26,10 +37,18 @@ _STRING_FORMAT_CONVERTER = StringFormatConverter()
 
 
 class FormatConverterFactoryError(Exception):
+    """Raised if there is some issue creating a format converter"""
+
     pass
 
 
 def format_converter_factory(config_field):
+    """Create a format converter for a field
+
+    :param config_field: a config field description from :resoures.lib.configs.config_field:
+    :returns: an object of a class from :resources.lib.format_converters:
+    """
+    # type: (Any) -> AbstractFormatConverter
     if isinstance(config_field, BooleanField):
         return _BOOLEAN_FORMAT_CONVERTER
     elif isinstance(config_field, IntegerField):
@@ -45,4 +64,6 @@ def format_converter_factory(config_field):
     elif isinstance(config_field, DVDFilePathField):
         return _DOS_FILE_PATH_CONVERTER
     else:
-        FormatConverterFactoryError("Unrecognised type: " + str(type(config_field)))
+        raise FormatConverterFactoryError(
+            "Unrecognised type: " + str(type(config_field))
+        )

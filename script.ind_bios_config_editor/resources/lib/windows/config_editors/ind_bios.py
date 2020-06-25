@@ -1,3 +1,5 @@
+"""Config editor window for the iND-BiOS config file"""
+
 from .abstract_config_editor import AbstractConfigEditor
 from ...tabs import ind_bios
 from collections import OrderedDict
@@ -5,6 +7,8 @@ from ... import configs
 
 
 class IndBiosConfigEditor(AbstractConfigEditor):
+    """Config editor window for the iND-BiOS config file"""
+
     def _create_tab_data(self):
         tabs_dict = OrderedDict(
             [
@@ -31,7 +35,9 @@ class IndBiosConfigEditor(AbstractConfigEditor):
         return tab_data
 
     def _create_config(self):
+        # type () -> configs.IndBiosConfig
         return configs.IndBiosConfig()
 
     def _get_window_title(self):
+        # type: () -> str
         return "iND-BiOS Config Editor"

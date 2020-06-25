@@ -10,8 +10,8 @@
 		<platform>all</platform>
 		<summary lang="en">Edit your IND bios configuration file.</summary>
 		<description lang="en">Edit your IND bios configuration file.</description>
-		<license>GNU GENERAL PUBLIC LICENSE. Version 2, June 1991</license>
+		<license>GNU GENERAL PUBLIC LICENSE. Version 3, June 2007</license>
 		<forum>http://forum.xbmc.org/showthread.php?tid=82174</forum>
-		<source>http://github.com/ruuk/script.tvrage.com</source>
+		<source>https://github.com/jcn509/Xbox-BIOS-config-editor-for-XBMC/</source>
 	</extension>
 </addon>

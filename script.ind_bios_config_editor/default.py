@@ -1,9 +1,16 @@
+"""An iND-BiOS config editor addon for XBMC4XBOX"""
 # pytype dislikes this import. Making resources a package caused strange pytest
 # errors, so that isn't a solution.
 # pytype: disable=import-error
-from resources.lib.windows.config_editors import (
-    IndBiosConfigEditor,
-)
+
+import os
+import sys
+
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "resources"))
+
+from lib.windows.config_editors import IndBiosConfigEditor
+
 # pytype: enable=import-error
 import pyxbmct
 

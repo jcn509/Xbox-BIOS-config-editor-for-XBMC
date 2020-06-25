@@ -1,3 +1,7 @@
+"""Classes to convert values between the format they need to be in for in
+config files and the format they need to be in for the rest of the program
+"""
+
 from .abstract_format_converter import AbstractFormatConverter
 from .boolean_format_converter import BooleanFormatConverter
 from .discrete_format_converter import DiscreteFormatConverter
