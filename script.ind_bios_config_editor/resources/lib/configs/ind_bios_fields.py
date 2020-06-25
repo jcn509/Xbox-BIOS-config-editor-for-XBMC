@@ -33,7 +33,9 @@ _IND_BIOS_FIELDS = {
     # Boot animation
     # 480P would be an invalid property name in the namedtuple
     "boot480p": BooleanField("480P", False),
-    "cameraview": DiscreteField("CAMERAVIEW", "-1", tuple(str(x) for x in range(-1, 16))),
+    "cameraview": DiscreteField(
+        "CAMERAVIEW", "-1", tuple(str(x) for x in range(-1, 16))
+    ),
     "fastani": BooleanField("FASTANI", False),
     "scenecolor1": HexColourField("SCENECOLOR1", "0xFF35FF1A", True),
     "scenecolor2": HexColourField("SCENECOLOR2", "0xFF35FF1A", True),
@@ -102,4 +104,4 @@ _IND_BIOS_FIELDS = {
 }
 
 # Better to use a named tuple as this is accessible globally and named tuples are immutable
-IND_BIOS_FIELDS = namedtuple('GenericDict', _IND_BIOS_FIELDS.keys())(**_IND_BIOS_FIELDS)
+IND_BIOS_FIELDS = namedtuple("GenericDict", _IND_BIOS_FIELDS.keys())(**_IND_BIOS_FIELDS)

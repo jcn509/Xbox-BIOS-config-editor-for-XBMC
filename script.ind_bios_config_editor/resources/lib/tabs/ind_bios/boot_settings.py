@@ -35,7 +35,9 @@ class BootSettings(AbstractIndBiosTab):
         self._place_label("Default XBE", 3, 0)
         self._place_and_link(
             "DEFAULTXBE",
-            controls.FakeEdit(default_value="Default XBE", keyboard_title="Default XBE"),
+            controls.FakeEdit(
+                default_value="Default XBE", keyboard_title="Default XBE"
+            ),
             3,
             1,
             columnspan=9,

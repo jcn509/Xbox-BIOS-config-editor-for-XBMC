@@ -18,6 +18,7 @@ class ResetToDefault(pyxbmct.AddonDialogWindow):
     """Window used to select controls that should have their fields reset to
     default
     """
+
     def __new__(cls, tab_names, reset_callback=None, *args, **kwargs):
         return super(ResetToDefault, cls).__new__(cls, *args, **kwargs)
 

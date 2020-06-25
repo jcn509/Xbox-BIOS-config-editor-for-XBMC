@@ -173,7 +173,7 @@ class FakeSlider(AbstractControl, pyxbmct.Group):
     def _connectCallback(self, callback, window):
         # type: (Callable, Any) -> bool
         self._value_changed_callback = callback
-        return False # Don't use PyXBMCt's built in callback mechanism
+        return False  # Don't use PyXBMCt's built in callback mechanism
 
     def _placedCallback(self, window, *args, **kwargs):
         super(FakeSlider, self)._placedCallback(window, *args, **kwargs)

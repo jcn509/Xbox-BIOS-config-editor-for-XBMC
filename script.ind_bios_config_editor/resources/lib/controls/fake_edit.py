@@ -87,7 +87,7 @@ class FakeEdit(AbstractControl, ButtonWithIcon):
     def _connectCallback(self, callback, window):
         # type: (Callable, Any) -> bool
         self._value_chosen_callback = callback
-        return False # Don't use PyXBMCt's inbuilt connection mechanism
+        return False  # Don't use PyXBMCt's inbuilt connection mechanism
 
     def _placedCallback(self, window, *args, **kwargs):
         super(FakeEdit, self)._placedCallback(window, *args, **kwargs)

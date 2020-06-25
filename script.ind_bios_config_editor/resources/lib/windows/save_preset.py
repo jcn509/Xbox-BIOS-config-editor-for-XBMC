@@ -5,6 +5,7 @@ a config later)
 """
 
 import os
+
 try:
     # typing not available on XBMC4XBOX
     from typing import Any, Callable
@@ -20,6 +21,7 @@ class SavePreset(pyxbmct.AddonDialogWindow):
     """Used to save config presets to a chosen directory with a chosen
     filename
     """
+
     def __new__(
         cls, file_created_callback=None, default_filename=None, *args, **kwargs
     ):

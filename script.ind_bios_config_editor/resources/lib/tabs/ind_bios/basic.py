@@ -13,7 +13,9 @@ class Basic(AbstractIndBiosTab):
         igr_modes = ["Off", "Compatible", "Quick"]
         self._place_and_link(
             "IGRMODE",
-            controls.SelectBox(igr_modes, "Quick", popup_window_title="In game reset mode"),
+            controls.SelectBox(
+                igr_modes, "Quick", popup_window_title="In game reset mode"
+            ),
             0,
             2,
         )

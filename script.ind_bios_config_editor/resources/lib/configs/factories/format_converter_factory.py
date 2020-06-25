@@ -3,6 +3,7 @@
 try:
     # typing module not available on XBMC4XBOX
     from typing import Any, TYPE_CHECKING
+
     if TYPE_CHECKING:
         from ..format_converters import AbstractFormatConverter
 except:
@@ -37,6 +38,7 @@ _STRING_FORMAT_CONVERTER = StringFormatConverter()
 
 class FormatConverterFactoryError(Exception):
     """Raised if there is some issue creating a format converter"""
+
     pass
 
 
@@ -62,4 +64,6 @@ def format_converter_factory(config_field):
     elif isinstance(config_field, DVDFilePathField):
         return _DOS_FILE_PATH_CONVERTER
     else:
-        raise FormatConverterFactoryError("Unrecognised type: " + str(type(config_field)))
+        raise FormatConverterFactoryError(
+            "Unrecognised type: " + str(type(config_field))
+        )

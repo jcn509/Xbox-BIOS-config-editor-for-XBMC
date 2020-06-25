@@ -3,6 +3,7 @@ Validators are used to validate values in both their Python and config file
 formats
 """
 from abc import ABCMeta, abstractmethod
+
 try:
     # typing is not available on XBMC4XBOX
     from typing import Any
@@ -15,6 +16,7 @@ class AbstractValidator(object):
     """Validators are used to validate values in both their Python and config
     file formats
     """
+
     __metaclass__ = ABCMeta
 
     @abstractmethod

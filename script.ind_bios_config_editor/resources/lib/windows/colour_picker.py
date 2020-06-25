@@ -10,6 +10,7 @@ from .. import controls
 
 class ColourPicker(pyxbmct.AddonDialogWindow):
     """Contains controls used to pick a colour"""
+
     def __new__(
         cls,
         window_title="Choose Colour",

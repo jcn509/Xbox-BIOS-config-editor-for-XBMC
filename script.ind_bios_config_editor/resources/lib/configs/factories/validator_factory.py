@@ -3,6 +3,7 @@
 try:
     # typing module not available on XBMC4XBOX
     from typing import Any, TYPE_CHECKING
+
     if TYPE_CHECKING:
         from ..validators import AbstractValidator
 except:
@@ -37,6 +38,7 @@ _COLOUR_WITH_ALPHA_VALIDATOR = ColourWithAlphaValidator()
 
 class ValidatorFactoryError(Exception):
     """Raised if there is an issue creating a validator"""
+
     pass
 
 

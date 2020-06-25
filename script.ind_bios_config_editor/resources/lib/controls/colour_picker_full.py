@@ -11,6 +11,7 @@ from .abstract_control import AbstractControl
 
 class ColourPickerFull(AbstractControl, pyxbmct.Group):
     """Full colour picker control with sliders and colour display"""
+
     def __new__(
         cls, alpha_selector=False, default_colour="0xFFFFFFFF", *args, **kwargs
     ):
@@ -46,7 +47,7 @@ class ColourPickerFull(AbstractControl, pyxbmct.Group):
     def _connectCallback(self, callback, window):
         # type: (Callable, Any) -> bool
         self._colour_changed_callback = callback
-        return False # Don't use PyXBMCt's inbuilt connect mechanism
+        return False  # Don't use PyXBMCt's inbuilt connect mechanism
 
     def _placedCallback(self, window, *args, **kwargs):
         super(ColourPickerFull, self)._placedCallback(window, *args, **kwargs)
@@ -105,7 +106,7 @@ class ColourPickerFull(AbstractControl, pyxbmct.Group):
         position
 
         Used to change e.g. the red component of the colour
-        """ 
+        """
         colour = (
             self._current_colour[:position]
             + "{:02X}".format(value)

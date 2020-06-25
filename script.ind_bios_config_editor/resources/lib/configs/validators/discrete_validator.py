@@ -12,6 +12,7 @@ except:
 from .abstract_validator import AbstractValidator
 from ..config_errors import ConfigFieldValueError
 
+
 class DiscreteValidator(AbstractValidator):
     """Validate values that should be:
      - In Python format: one string from a tuple of strings

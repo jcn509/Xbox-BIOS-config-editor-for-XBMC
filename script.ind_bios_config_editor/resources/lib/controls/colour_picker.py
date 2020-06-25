@@ -22,6 +22,7 @@ class ColourPicker(AbstractControl, pyxbmct.Group):
     """Colour picker button that displays the Current colour and opens a
     colour picker window when clicked
     """
+
     def __new__(
         cls,
         window_title="Choose Colour",
@@ -125,7 +126,7 @@ class ColourPicker(AbstractControl, pyxbmct.Group):
     def _connectCallback(self, callback, window):
         # type: (Callable, Any) ->  None
         self._colour_chosen_callback = callback
-        return False # Don't use PyXBMCt's default connection mechanism
+        return False  # Don't use PyXBMCt's default connection mechanism
 
     def _placedCallback(self, window, *args, **kwargs):
         """

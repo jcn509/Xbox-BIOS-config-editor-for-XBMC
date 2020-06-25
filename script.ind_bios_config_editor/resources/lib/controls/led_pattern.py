@@ -29,6 +29,7 @@ class LedPattern(AbstractControl, pyxbmct.Group):
     button. If both radio buttons are on orange is selected, if both are off
     off is selected, and if only one is on that colour is selected.
     """
+
     def __new__(
         cls,
         label_text="LED pattern (green + red = orange, neither = off)",
@@ -107,7 +108,7 @@ class LedPattern(AbstractControl, pyxbmct.Group):
     def _connectCallback(self, callback, window):
         # type: (Callable, Any) -> bool
         self._pattern_changed_callback = callback
-        return False # Don't use PyXBMCt's built in connection mechanism
+        return False  # Don't use PyXBMCt's built in connection mechanism
 
     def _placedCallback(self, window, *args, **kwargs):
         super(LedPattern, self)._placedCallback(window, *args, **kwargs)

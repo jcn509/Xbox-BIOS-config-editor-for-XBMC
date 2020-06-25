@@ -13,14 +13,24 @@ from .abstract_control import AbstractControl
 
 class FileSelectorOrZero(AbstractControl, pyxbmct.Group):
     """File selector control that allows the user to also select no file"""
-    
+
     def __new__(
-        cls, total_width=8, enable_radio_button_width=1, enabled_by_default=True, *args, **kwargs
+        cls,
+        total_width=8,
+        enable_radio_button_width=1,
+        enabled_by_default=True,
+        *args,
+        **kwargs
     ):
         return super(FileSelectorOrZero, cls).__new__(cls, 1, total_width)
 
     def __init__(
-        self, total_width=8, enable_radio_button_width=1, enabled_by_default=True, *args, **kwargs
+        self,
+        total_width=8,
+        enable_radio_button_width=1,
+        enabled_by_default=True,
+        *args,
+        **kwargs
     ):
         """:param total_width: the number of columns used for the control
         :param enable_radio_button_width: width in columns of the\
@@ -80,14 +90,14 @@ class FileSelectorOrZero(AbstractControl, pyxbmct.Group):
     def _connectCallback(self, callback, window):
         # type: (Callable, Any) -> bool
         self._file_selected_callback = callback
-        
+
         # Delegate to the file selector if a file is chosen
         def wrapped_callable(file_path):
             self._file_path = file_path
             callback(file_path)
 
         window.connect(self._file_selector, wrapped_callable)
-        return False # Don't use PyXBMCt's built in connection mechanism
+        return False  # Don't use PyXBMCt's built in connection mechanism
 
     def _placedCallback(self, window, *args, **kwargs):
         super(FileSelectorOrZero, self)._placedCallback(window, *args, **kwargs)

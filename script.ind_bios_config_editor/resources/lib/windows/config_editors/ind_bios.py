@@ -8,6 +8,7 @@ from ... import configs
 
 class IndBiosConfigEditor(AbstractConfigEditor):
     """Config editor window for the iND-BiOS config file"""
+
     def _create_tab_data(self):
         tabs_dict = OrderedDict(
             [

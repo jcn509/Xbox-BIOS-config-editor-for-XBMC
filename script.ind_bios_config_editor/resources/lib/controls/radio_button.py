@@ -16,6 +16,7 @@ class RadioButton(AbstractControl, pyxbmct.RadioButton):
     """Simple wrapper for :pyxbmc.RadioButton: to ensure that it has the same
     interface as the other controls
     """
+
     def __new__(cls, *args, **kwargs):
         return super(RadioButton, cls).__new__(cls, *args, **kwargs)
 

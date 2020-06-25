@@ -3,6 +3,7 @@ regular expressions (may have one regular expression for the Python format and
 a different one for the config file format)
 """
 import re
+
 try:
     # typing not available on XBMC4XBOX
     from typing import Pattern
@@ -12,13 +13,15 @@ except:
 from .abstract_validator import AbstractValidator
 from ..config_errors import ConfigFieldValueError
 
+
 class RegexPatternMatchValidator(AbstractValidator):
     """Validator that ensures that values in Python and config file format
     match regular expressions
 
     If config_regex_pattern is not supplied then both Python and config file
     format values will be validated against python_regex_pattern
-    """   
+    """
+
     __slots__ = "_regex", "_error_message"
 
     def __init__(

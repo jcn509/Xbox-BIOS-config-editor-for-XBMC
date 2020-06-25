@@ -13,6 +13,7 @@ class DOSFilePathFormatConverter(AbstractFormatConverter):
     """Converts between the path format \\Device\\<devicename>\\partition\\... to
     the DOS format (C:\\...)
     """
+
     _DRIVE_PARTITION_MAPPING = {"C": 2, "E": 1, "F": 6, "G": 7}
     _FILE_PATH_PREAMBLE_HDD = "\\Device\\Harddisk0\\Partition"
     _FILE_PATH_PREAMBLE_DVD = "\\Device\\CdRom0"
@@ -23,7 +24,9 @@ class DOSFilePathFormatConverter(AbstractFormatConverter):
         drive_letter = file_path[0]
         if drive_letter in self._DRIVE_PARTITION_MAPPING.keys():
             partition_number = self._DRIVE_PARTITION_MAPPING[drive_letter]
-            file_path = self._FILE_PATH_PREAMBLE_HDD + str(partition_number) + file_path[2:]
+            file_path = (
+                self._FILE_PATH_PREAMBLE_HDD + str(partition_number) + file_path[2:]
+            )
         elif drive_letter == "D":
             file_path = self._FILE_PATH_PREAMBLE_DVD + file_path[2:]
 
@@ -51,6 +54,7 @@ class OptionalDOSFilePathFormatConverter(DOSFilePathFormatConverter):
     """Converts between the path format \\Device\\<devicename>\\partition\\... to
     the DOS format (C:\\...). Also allows for values that specify no file.
     """
+
     def convert_to_config_file_format(self, file_path):
         """Convert from the file path format format C:\\... to \\Device\\...
 

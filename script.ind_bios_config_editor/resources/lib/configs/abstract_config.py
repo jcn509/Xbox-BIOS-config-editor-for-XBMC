@@ -9,6 +9,7 @@ import ConfigParser
 import os
 import re
 from StringIO import StringIO
+
 try:
     # typing not available on XBMC4XBOX
     from typing import Any, Dict, Tuple
@@ -30,6 +31,7 @@ class AbstractConfig(object):
     It automatically validates all values and converts them between Python and
     config file formats
     """
+
     __metaclass__ = ABCMeta
 
     def __init__(self, max_line_length=None, quote_char_if_whitespace=None):
@@ -273,7 +275,7 @@ class AbstractConfig(object):
     def get(self, option_name, validate_option_name=True):
         """:returns: the value of option_name in Python format"""
         # type: (str, bool) ->  Any
-        if validate_option_name: 
+        if validate_option_name:
             self._validate_option_name(option_name)
         value_in_config_format = self._get_in_config_file_format(option_name)
         format_converter = self._format_converters[option_name]
@@ -321,7 +323,9 @@ class AbstractConfig(object):
         for field in true_if_fields_dont_have_values:
             value = False
             for field_to_check in true_if_fields_dont_have_values[field]:
-                value_to_check_for = true_if_fields_dont_have_values[field][field_to_check]
+                value_to_check_for = true_if_fields_dont_have_values[field][
+                    field_to_check
+                ]
 
                 if self.get(field_to_check) != value_to_check_for:
                     value = True
@@ -338,7 +342,7 @@ class AbstractConfig(object):
                         + self._quote_char_if_whitespace
                     )
                     self._set_in_config_format(field, value)
-        
+
         stream = StringIO()
         if dont_write_option_if_value_default:
             output_file = ConfigParser.RawConfigParser()

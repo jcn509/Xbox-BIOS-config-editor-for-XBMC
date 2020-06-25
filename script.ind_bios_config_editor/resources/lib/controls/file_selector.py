@@ -23,6 +23,7 @@ class FileSelector(AbstractControl, ButtonWithIcon):
     Presents a button that shows the currently selected file. Clicking on the
     button brings up a dialogue window that is used to select a different file
     """
+
     def __new__(
         cls,
         default_filename="Select File",
@@ -77,7 +78,12 @@ class FileSelector(AbstractControl, ButtonWithIcon):
         # type: (str, bool, int, str, str, str, bool, bool, str, int, int, Any, Any) -> None
         icon = _get_icon_filename(browse_type, custom_icon)
         super(FileSelector, self).__init__(
-            default_filename, icon, icon_pad_x=icon_pad_x, icon_pad_y=icon_pad_y, *args, **kwargs
+            default_filename,
+            icon,
+            icon_pad_x=icon_pad_x,
+            icon_pad_y=icon_pad_y,
+            *args,
+            **kwargs
         )
         self._browse_type = browse_type
         self._file_select_window_title = file_select_window_title
@@ -134,7 +140,7 @@ class FileSelector(AbstractControl, ButtonWithIcon):
     def _connectCallback(self, callback, window):
         # type: (Callable, Any) -> bool
         self._file_chosen_callback = callback
-        return False # Don't use PyXBMCt's built in connection mechanism
+        return False  # Don't use PyXBMCt's built in connection mechanism
 
     def _placedCallback(self, window, *args, **kwargs):
         """

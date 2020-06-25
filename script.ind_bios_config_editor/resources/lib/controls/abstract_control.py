@@ -2,16 +2,19 @@
 interface
 """
 from abc import ABCMeta, abstractmethod
+
 try:
     # typing not available on XBMC4Xbox
     from typing import Any
 except:
     pass
 
+
 class AbstractControl(object):
     """Implemented by all controls with state to ensure that they have the
     same interface
     """
+
     __metaclass__ = ABCMeta
 
     @abstractmethod

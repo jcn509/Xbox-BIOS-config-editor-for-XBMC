@@ -14,6 +14,7 @@ class DiscreteFormatConverter(AbstractFormatConverter):
     """Converts between a tuple of strings and the index at which a given
     string is located in the tuple
     """
+
     def __init__(self, values):
         # type: (Tuple[str, ...]) -> None
         self._values = tuple(values)

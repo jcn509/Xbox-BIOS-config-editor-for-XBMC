@@ -2,6 +2,7 @@
 
 from collections import OrderedDict
 from abc import ABCMeta, abstractmethod
+
 try:
     # typing is not available on XBMC4Xbox
     from typing import Any
@@ -20,6 +21,7 @@ from .reset_to_default import ResetToDefault
 
 class AbstractConfigEditor(pyxbmct.AddonDialogWindow):
     """Abstract config editor window. Contains common functionality"""
+
     __metaclass__ = ABCMeta
 
     # Using __new__ here is necessary otherwise config_filename gets passed to
@@ -64,7 +66,7 @@ class AbstractConfigEditor(pyxbmct.AddonDialogWindow):
 
     @abstractmethod
     def _create_config(self):
-        # type: () -> AbstractConfig 
+        # type: () -> AbstractConfig
         pass
 
     @abstractmethod

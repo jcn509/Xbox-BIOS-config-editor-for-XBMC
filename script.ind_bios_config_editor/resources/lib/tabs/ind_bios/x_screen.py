@@ -75,7 +75,9 @@ class XScreen(AbstractIndBiosTab):
         self._place_label("Custom 'X' logo", 4, 0)
         self._place_and_link(
             "CUSTOMX",
-            controls.FileSelectorOrZero(file_select_window_title="Custom 'X' logo", mask=".x"),
+            controls.FileSelectorOrZero(
+                file_select_window_title="Custom 'X' logo", mask=".x"
+            ),
             4,
             1,
             columnspan=5,
@@ -91,7 +93,9 @@ class XScreen(AbstractIndBiosTab):
         self._place_label("Text Scale", 5, 3)
         self._place_and_link(
             "TEXTSCALE",
-            controls.FakeSlider(min_value=0, max_value=100, keyboard_title="Text Scale"),
+            controls.FakeSlider(
+                min_value=0, max_value=100, keyboard_title="Text Scale"
+            ),
             5,
             4,
             columnspan=2,
@@ -99,7 +103,9 @@ class XScreen(AbstractIndBiosTab):
         self._place_label("Custom 'XBOX' text", 6, 0)
         self._place_and_link(
             "CUSTOMTEXT",
-            controls.FileSelectorOrZero(file_select_window_title="Custom 'XBOX' text", mask=".x"),
+            controls.FileSelectorOrZero(
+                file_select_window_title="Custom 'XBOX' text", mask=".x"
+            ),
             6,
             1,
             columnspan=5,
@@ -143,7 +149,9 @@ class XScreen(AbstractIndBiosTab):
         self._place_and_link(
             "CUSTOMLOGO",
             controls.FileSelectorOrZero(
-                file_select_window_title="Custom 'MS' logo", mask=".bmp", use_thumbs=True
+                file_select_window_title="Custom 'MS' logo",
+                mask=".bmp",
+                use_thumbs=True,
             ),
             9,
             1,

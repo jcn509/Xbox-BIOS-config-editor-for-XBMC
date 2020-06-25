@@ -6,6 +6,7 @@ from .regex_pattern_match_validator import RegexPatternMatchValidator
 
 class _FilePathValidator(RegexPatternMatchValidator):
     """Helper class used for any file path whether it is DVD or HDD"""
+
     def __init__(self, device_preabmle, drive_letters_regex, file_extension):
         # type: (str, str, str) -> None
         xbmc_pattern = "^" + drive_letters_regex + ":\\\\.+\\." + file_extension + "$"
@@ -21,6 +22,7 @@ class DVDFilePathValidator(_FilePathValidator):
     config file format values must start with \\Device\\CdRom0\\
     Python format values must start with D:\\
     """
+
     def __init__(self, file_extension):
         super(DVDFilePathValidator, self).__init__("CdRom0", "D", file_extension)
 
@@ -34,6 +36,7 @@ class HDDFilePathValidator(_FilePathValidator):
 
     This means that files cannot be on the cache partitions (X, Y, Z)
     """
+
     def __init__(self, file_extension):
         # type: (str) ->  None
         super(HDDFilePathValidator, self).__init__(
@@ -50,6 +53,7 @@ class OptionalHDDFilePathValidator(HDDFilePathValidator):
 
     This means that files cannot be on the cache partitions (X, Y, Z)
     """
+
     def validate_in_config_file_format(self, file_path):
         """:raises ConfigFieldValueError: if file_path is not the string 0 or\
                 if it does not start with \
@@ -67,4 +71,6 @@ class OptionalHDDFilePathValidator(HDDFilePathValidator):
         """
         # type: (str) -> None
         if file_path is not None:
-            super(OptionalHDDFilePathValidator, self).validate_in_python_format(file_path)
+            super(OptionalHDDFilePathValidator, self).validate_in_python_format(
+                file_path
+            )

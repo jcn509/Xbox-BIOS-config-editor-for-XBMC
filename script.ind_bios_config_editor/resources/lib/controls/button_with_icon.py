@@ -1,5 +1,6 @@
 """Button with an icon and text"""
 import os
+
 try:
     # typign not available on XBMC4Xbox
     from typing import Any, Callable
@@ -15,6 +16,7 @@ _addon_path = _addon.getAddonInfo("path")
 
 class ButtonWithIcon(pyxbmct.Group):
     """Button with an icon and text"""
+
     def __new__(
         cls,
         text,

@@ -7,11 +7,10 @@ import os
 import sys
 
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'resources'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "resources"))
 
-from lib.windows.config_editors import (
-    IndBiosConfigEditor,
-)
+from lib.windows.config_editors import IndBiosConfigEditor
+
 # pytype: enable=import-error
 import pyxbmct
 

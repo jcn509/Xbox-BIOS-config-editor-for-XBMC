@@ -10,9 +10,11 @@ try:
 except:
     pass
 
+
 class AbstractFormatConverter(object):
     """Used to convert values between their "config file" and "Python" formats
     """
+
     __metaclass__ = ABCMeta
 
     @abstractmethod

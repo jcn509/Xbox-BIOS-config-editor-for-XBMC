@@ -10,9 +10,9 @@ _addon_path = _addon.getAddonInfo("path")
 
 class _ColourSquare(pyxbmct.Image):
     """A helper control that displays a square with a given colour"""
-    
+
     def __new__(cls, colorDiffuse):
-        # parameter not used here. Not camel cae as that is not the convetion 
+        # parameter not used here. Not camel cae as that is not the convetion
         # used in PyXBMCt.
         image_file = os.path.join(
             _addon_path, "resources", "media", "colour_picker_white_square.png"
@@ -21,7 +21,7 @@ class _ColourSquare(pyxbmct.Image):
 
     def __init__(self, colorDiffuse):
         # type: (str) -> None
-        # parameter not used here. Not camel cae as that is not the convetion 
+        # parameter not used here. Not camel cae as that is not the convetion
         # used in PyXBMCt.
         self.setColorDiffuse(colorDiffuse)
 

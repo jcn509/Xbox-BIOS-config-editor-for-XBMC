@@ -96,7 +96,9 @@ class Flubber(AbstractIndBiosTab):
         self._place_label("Custom blob", 6, 0)
         self._place_and_link(
             "CUSTOMBLOB",
-            controls.FileSelectorOrZero(file_select_window_title="Custom blob", mask=".x"),
+            controls.FileSelectorOrZero(
+                file_select_window_title="Custom blob", mask=".x"
+            ),
             6,
             1,
             columnspan=5,
