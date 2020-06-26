@@ -1,7 +1,7 @@
 """A popup menu/select box control"""
 try:
     # typing not available on XBMC4Xbox
-    from typing import Any, Callable, Tuple
+    from typing import Any, Callable, List, Tuple, Union
 except:
     pass
 
@@ -23,24 +23,25 @@ class SelectBox(AbstractControl, ButtonWithIcon):
     def __init__(
         self, options, default="", popup_window_title="Select", *args, **kwargs
     ):
-        # type: (Tuple[str], str, str, Any, Any) -> None
+        # type: (Union[List[str],Tuple[str, ...]], str, str, Any, Any) -> None
         super(SelectBox, self).__init__(
             default, "menu_option.png", icon_pad_x=0, *args, **kwargs
         )
-        if not isinstance(options, list):
-            raise TypeError("Options must be a list")
+        if not isinstance(options, (tuple, list)):
+            raise TypeError("options must be a list or tuple")
         if not all(isinstance(x, str) for x in options):
-            raise TypeError("All options be strings")
+            raise TypeError("all options be strings")
         if not len(options) > 0:
-            raise ValueError("Options must have at least one item")
+            raise ValueError("options must have at least one item")
 
         self._options = options
         self._popup_window_title = popup_window_title
+        self._option_chosen_callback = None
 
     def get_value(self):
         """:returns: the option that is currently selected"""
         # type: () -> str
-        return self.getLabel()
+        return self._button.getLabel()
 
     def set_value(self, chosen_option, trigger_callback=True):
         """Set which option is currently chosen
@@ -51,7 +52,7 @@ class SelectBox(AbstractControl, ButtonWithIcon):
         if chosen_option not in self._options:
             raise ValueError(str(chosen_option) + " not a valid choice")
         self._button.setLabel(chosen_option)
-        if trigger_callback and self._option_chosen_callback:
+        if trigger_callback and self._option_chosen_callback is not None:
             self._option_chosen_callback(chosen_option)
 
     def open_menu(self):

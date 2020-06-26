@@ -11,7 +11,7 @@ setup(
     version="1.0.0",
     package_dir={"": "script.ind_bios_config_editor/resources"},
     packages=find_packages("./script.ind_bios_config_editor/resources"),
-    extras_require={"dev": ["pytest", "pytype"]},
+    extras_require={"dev": ["pytest", "pytest-mock", "pytype"]},
     install_requires=[
         "Kodistubs",
         "pyxbmct @ git+https://github.com/romanvm/script.module.pyxbmct@master",

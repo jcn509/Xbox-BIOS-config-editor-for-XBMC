@@ -7,18 +7,81 @@ except:
     pass
 import pyxbmct
 import xbmc
-from .fake_slider import FakeSlider
+
+from .abstract_control import AbstractControl
+from .button_with_icon import ButtonWithIcon
 from ._colour_square import _ColourSquare
 from .colour_picker_full import ColourPickerFull
-from .abstract_control import AbstractControl
+from .fake_slider import FakeSlider
 
-# Typing module needed for using pytype
+# Note: this window is here and not in the Windows package as:
+# a) it only really needs to be used with this control
+# b) it lead to circular imports which pytype couldn't handle
+# c) it makes it easier to re-use this contol as now you only need the
+#    controls package
+class _ColourPickerWindow(pyxbmct.AddonDialogWindow):
+    """Contains controls used to pick a colour"""
 
-# FIX THIS LATER! PYTYPE DOESN'T LIKE CIRCULAR IMPORTS!
-# pytype: skip-file
+    def __new__(
+        cls,
+        window_title="Choose Colour",
+        alpha_selector=False,
+        current_colour="0xFFFFFFFF",
+        colour_chosen_callback=None,
+    ):
+        return super(_ColourPickerWindow, cls).__new__(cls)
+
+    def __init__(
+        self,
+        window_title="Choose Colour",
+        alpha_selector=False,
+        current_colour="0xFFFFFFFF",
+        colour_chosen_callback=None,
+    ):
+        """:param alpha_selector: if True then you can also pick the colour's\
+                alpha component
+        :param current_colour: a hexadecimal colour string optionally\
+                prefixed with 0x. If alpha_selector is True then the first 2\
+                characters represent the alpha channel
+        """
+
+        # type: (str, bool, str, Callable) -> None
+        super(_ColourPickerWindow, self).__init__(window_title)
+
+        num_rows = 5 if alpha_selector else 4
+        height = 60 * num_rows
+        self.setGeometry(500, height, num_rows, 5)
+
+        self._current_colour = current_colour
+        self._colour_chosen_callback = colour_chosen_callback
+
+        ok_button = ButtonWithIcon("OK", "done.png")
+        cancel_button = ButtonWithIcon("Cancel", "close.png")
+        colour_picker_full = ColourPickerFull(alpha_selector, current_colour)
+        self.placeControl(colour_picker_full, 0, 0, columnspan=5, rowspan=num_rows - 1)
+        self.placeControl(ok_button, num_rows - 1, 0, columnspan=2)
+        self.placeControl(cancel_button, num_rows - 1, 3, columnspan=2)
+
+        self.autoNavigation()
+
+        self.connect(ok_button, self._ok_button_pressed)
+        self.connect(cancel_button, self.close)
+        self.connect(colour_picker_full, self._colour_changed)
+        self.connect(pyxbmct.ACTION_NAV_BACK, self.close)
+        self.setFocus(ok_button)
+
+    def _colour_changed(self, colour):
+        # type: (str) -> None
+        self._current_colour = colour
+
+    def _ok_button_pressed(self):
+        # type: () -> None
+        if self._colour_chosen_callback:
+            self._colour_chosen_callback(self._current_colour)
+        self.close()
 
 
-class ColourPicker(AbstractControl, pyxbmct.Group):
+class ColourPicker(AbstractControl, ButtonWithIcon):
     """Colour picker button that displays the Current colour and opens a
     colour picker window when clicked
     """
@@ -48,20 +111,34 @@ class ColourPicker(AbstractControl, pyxbmct.Group):
                 characters represent the alpha channel
         """
         # type: (str, bool, str, Any, Any) -> None
-        super(ColourPicker, self).__init__(1, 2, *args, **kwargs)
 
-        if not alpha_selector:
-            if default_colour[0:2] == "0x":
-                if len(default_colour) == 10:
-                    default_colour = default_colour[0:2] + default_colour[4:]
-            else:
-                if len(default_colour) == 8:
-                    default_colour = default_colour[2:]
-
-        self._current_colour = default_colour
-        self._window_title = window_title
         self._alpha_selector = alpha_selector
+        self._current_colour = self._get_colour_in_correct_format(default_colour)
+
+        colour_square = _ColourSquare(self._current_colour)
+        super(ColourPicker, self).__init__(
+            self._current_colour,
+            colour_square,
+            set_icon_colour_diffuse_on_set_enabled=False,
+            *args,
+            **kwargs
+        )
+
+        self._window_title = window_title
         self._colour_chosen_callback = None
+
+    def _get_colour_in_correct_format(self, colour):
+        """Cut out alpha component if it shouldn't be there"""
+        # type: (str) -> str
+        if not self._alpha_selector:
+            if colour[0:2] == "0x":
+                if len(colour) == 10:
+                    colour = colour[0:2] + colour[4:]
+            else:
+                if len(colour) == 8:
+                    colour = colour[2:]
+
+        return colour
 
     def set_value(self, colour, trigger_callback=True):
         """:param colour: is a hexadecimal colour string\
@@ -71,10 +148,17 @@ class ColourPicker(AbstractControl, pyxbmct.Group):
                 will not be triggered
         """
         # type (str, bool) -> None
+
+        import xbmc
+
+        xbmc.log("set value: " + colour, 2)
+        colour = self._get_colour_in_correct_format(colour)
         self._current_colour = colour
+
         self._button.setLabel(colour)
-        self._colour_square.setColorDiffuse(colour)
-        if trigger_callback and self._colour_chosen_callback:
+        self._icon.setColorDiffuse(colour)
+
+        if trigger_callback and self._colour_chosen_callback is not None:
             self._colour_chosen_callback(colour)
 
     def get_value(self):
@@ -87,11 +171,8 @@ class ColourPicker(AbstractControl, pyxbmct.Group):
 
     def pick_colour(self):
         """Open the colour picker window so you can pick a new colour"""
-        # Windows also imports Controls. To avoid circular import issues the
-        # importing of windows is delayed until now.
-        from .. import windows
-
-        colour_picker = windows.ColourPicker(
+        # type: () -> None
+        colour_picker = _ColourPickerWindow(
             self._window_title,
             self._alpha_selector,
             self._current_colour,
@@ -102,29 +183,8 @@ class ColourPicker(AbstractControl, pyxbmct.Group):
         # underlying xbmcgui classes are not garbage-collected on exit.
         del colour_picker
 
-    def _colour_square_placed(
-        self, window, row, column, rowspan, columnspan, pad_x, pad_y
-    ):
-        # type: (Any, int, int, int, int, int, int) -> None
-        square_x, square_y = self._colour_square.getPosition()
-        square_width = self._colour_square.getWidth()
-        # Using the min of getWidth and getHeight as the image is square and
-        # this gives the width of the actual image, rather than the width of the
-        # image object which may be very wide
-        square_side = min(
-            self._colour_square.getWidth(), self._colour_square.getHeight()
-        )
-
-        button_x, button_y = self._button.getPosition()
-        button_width = self._button.getWidth()
-
-        new_square_x = (
-            button_x + button_width - ((square_side + square_width) / 2 + pad_x)
-        )
-        self._colour_square.setPosition(new_square_x, square_y)
-
     def _connectCallback(self, callback, window):
-        # type: (Callable, Any) ->  None
+        # type: (Callable, Any) ->  bool
         self._colour_chosen_callback = callback
         return False  # Don't use PyXBMCt's default connection mechanism
 
@@ -133,18 +193,8 @@ class ColourPicker(AbstractControl, pyxbmct.Group):
         Called once the button has been placed
         """
         super(ColourPicker, self)._placedCallback(window, *args, **kwargs)
-        self._button = pyxbmct.Button(self._current_colour)
-        self.placeControl(self._button, 0, 0, columnspan=2, pad_x=0, pad_y=0)
 
-        self._colour_square = _ColourSquare(self._current_colour)
-        self._colour_square._placedCallback = self._colour_square_placed
-        self.placeControl(self._colour_square, 0, 1)
-
-        # Need to temporarily disable _connectCallback so that ithas no effect
-        # when window.connect is called below
-        temp = self._connectCallback
-        self._connectCallback = lambda x, y: True
-        window.connect(self._button, self.pick_colour)
-        self._connectCallback = temp
-
-        self.set_value(self._current_colour, False)
+        # Because _connectCallback from ButtonWithIcon has been overridden we
+        # must connect directly to the button
+        window.connect(self.get_button(), self.pick_colour)
+        self.set_value(self._current_colour, False)  # Needed for testing purposes
