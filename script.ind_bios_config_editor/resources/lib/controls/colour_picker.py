@@ -111,16 +111,22 @@ class ColourPicker(AbstractControl, ButtonWithIcon):
                 characters represent the alpha channel
         """
         # type: (str, bool, str, Any, Any) -> None
-        
+
         self._alpha_selector = alpha_selector
         self._current_colour = self._get_colour_in_correct_format(default_colour)
-        
+
         colour_square = _ColourSquare(self._current_colour)
-        super(ColourPicker, self).__init__(self._current_colour, colour_square, set_icon_colour_diffuse_on_set_enabled=False,  *args, **kwargs)
+        super(ColourPicker, self).__init__(
+            self._current_colour,
+            colour_square,
+            set_icon_colour_diffuse_on_set_enabled=False,
+            *args,
+            **kwargs
+        )
 
         self._window_title = window_title
         self._colour_chosen_callback = None
-    
+
     def _get_colour_in_correct_format(self, colour):
         """Cut out alpha component if it shouldn't be there"""
         # type: (str) -> str
@@ -131,9 +137,8 @@ class ColourPicker(AbstractControl, ButtonWithIcon):
             else:
                 if len(colour) == 8:
                     colour = colour[2:]
-        
-        return colour
 
+        return colour
 
     def set_value(self, colour, trigger_callback=True):
         """:param colour: is a hexadecimal colour string\
@@ -143,15 +148,16 @@ class ColourPicker(AbstractControl, ButtonWithIcon):
                 will not be triggered
         """
         # type (str, bool) -> None
-        
+
         import xbmc
-        xbmc.log("set value: "+colour, 2)
+
+        xbmc.log("set value: " + colour, 2)
         colour = self._get_colour_in_correct_format(colour)
         self._current_colour = colour
-        
+
         self._button.setLabel(colour)
         self._icon.setColorDiffuse(colour)
-        
+
         if trigger_callback and self._colour_chosen_callback is not None:
             self._colour_chosen_callback(colour)
 
@@ -191,4 +197,4 @@ class ColourPicker(AbstractControl, ButtonWithIcon):
         # Because _connectCallback from ButtonWithIcon has been overridden we
         # must connect directly to the button
         window.connect(self.get_button(), self.pick_colour)
-        self.set_value(self._current_colour, False) # Needed for testing purposes
+        self.set_value(self._current_colour, False)  # Needed for testing purposes

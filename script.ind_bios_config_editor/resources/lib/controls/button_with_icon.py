@@ -24,7 +24,7 @@ class ButtonWithIcon(pyxbmct.Group):
         icon_full_path=False,
         icon_pad_x=5,
         icon_pad_y=5,
-        set_icon_colour_diffuse_on_set_enabled = True,
+        set_icon_colour_diffuse_on_set_enabled=True,
         *args,
         **kwargs
     ):
@@ -37,7 +37,7 @@ class ButtonWithIcon(pyxbmct.Group):
         icon_full_path=False,
         icon_pad_x=5,
         icon_pad_y=5,
-        set_icon_colour_diffuse_on_set_enabled = True,
+        set_icon_colour_diffuse_on_set_enabled=True,
         *args,
         **kwargs
     ):
@@ -52,17 +52,17 @@ class ButtonWithIcon(pyxbmct.Group):
         """
         # type: (str, Union[str, pyxbmct.Image], bool, int, int, bool, Any, Any) -> None
         super(ButtonWithIcon, self).__init__(1, 2, *args, **kwargs)
-        
-        self._set_icon_colour_diffuse_on_set_enabled = set_icon_colour_diffuse_on_set_enabled
+
+        self._set_icon_colour_diffuse_on_set_enabled = (
+            set_icon_colour_diffuse_on_set_enabled
+        )
 
         if isinstance(icon, basestring):
             if not icon_full_path:
-                icon = os.path.join(
-                    _addon_path, "resources", "media", icon
-                )    
+                icon = os.path.join(_addon_path, "resources", "media", icon)
             self._icon = pyxbmct.Image(icon, aspectRatio=2)
-        else:        
-            self._icon = icon # type: pyxbmct.Image
+        else:
+            self._icon = icon  # type: pyxbmct.Image
 
         self._button = pyxbmct.Button(text)
         self._icon_pad_x = icon_pad_x
@@ -91,7 +91,7 @@ class ButtonWithIcon(pyxbmct.Group):
         button_width = self._button.getWidth()
 
         new_icon_x = button_x + button_width - ((icon_side + icon_width) / 2 + pad_x)
-        
+
         _, icon_y = self._icon.getPosition()
         self._icon.setPosition(new_icon_x, icon_y)
 
@@ -102,7 +102,7 @@ class ButtonWithIcon(pyxbmct.Group):
         """
         # type: (bool) -> None
         self._button.setEnabled(enabled)
-         
+
         if self._set_icon_colour_diffuse_on_set_enabled:
             if enabled:
                 self._icon.setColorDiffuse("0xFFFFFFFF")

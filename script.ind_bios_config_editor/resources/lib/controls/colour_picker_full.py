@@ -31,7 +31,7 @@ class ColourPickerFull(AbstractControl, pyxbmct.Group):
 
         if alpha_selector:
             num_rows += 1
-         
+
         super(ColourPickerFull, self).__init__(num_rows, 7, *args, **kwargs)
 
         self._num_rows = num_rows
@@ -48,9 +48,8 @@ class ColourPickerFull(AbstractControl, pyxbmct.Group):
                     colour = colour[0:2] + colour[4:]
             elif len(colour) == 8:
                 colour = colour[2:]
-        
-        return colour
 
+        return colour
 
     def _connectCallback(self, callback, window):
         # type: (Callable, Any) -> bool
@@ -100,13 +99,13 @@ class ColourPickerFull(AbstractControl, pyxbmct.Group):
         # The way colours are modified when using sliders depends on whether
         # the colour starts with 0x or not
         if self._current_colour.startswith("0x") and not colour.startswith("0x"):
-            colour = "0x" + colour  
+            colour = "0x" + colour
         elif not self._current_colour.startswith("0x") and colour.startswith("0x"):
             colour = colour[2:]
- 
+
         self._current_colour = colour
         self._colour_square.setColorDiffuse(self._current_colour)
-        
+
         if trigger_callback and self._colour_changed_callback:
             self._colour_changed_callback(colour)
 
