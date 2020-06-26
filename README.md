@@ -48,6 +48,8 @@ I have tried to create the beginnings of a framework that can be used to create
 config file editors. This project could be modified fairly easily to support the
 editing of other config files.
 
+Icons are taken from https://dribbble.com/shots/2888226-1800-Free-Minimal-Icon-Pack-20x20. Note: not all of them are actually square... Therefore I have to set funny padding values in the code sometimes to get them to line up right :/
+
 ### Installation for source code editing
 You will need to use Python 2.7 (as that is the version that is embedded in XBMC4XBOX). After cloning the repo you can install the project and all its dependencies (including the dev dependencies needed for testing) using:
 ```sh
