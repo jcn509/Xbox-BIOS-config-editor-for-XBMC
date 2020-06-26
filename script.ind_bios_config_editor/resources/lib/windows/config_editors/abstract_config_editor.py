@@ -17,7 +17,7 @@ import pyxbmct
 
 from ... import controls
 from .reset_to_default import ResetToDefault
-
+from ...tabs import TabViewer
 
 class AbstractConfigEditor(pyxbmct.AddonDialogWindow):
     """Abstract config editor window. Contains common functionality"""
@@ -32,30 +32,36 @@ class AbstractConfigEditor(pyxbmct.AddonDialogWindow):
     def __init__(self, config_filename, *args, **kwargs):
         # type: (str, Any, Any) -> None
         super(AbstractConfigEditor, self).__init__(self._get_window_title())
+        
+        # Use 720P coordinate resolution this way everything should look
+        # the same at any resolution rather than being super huge on standard
+        # def displays.
+        self.setCoordinateResolution(1)
 
         self._config_filename = config_filename
-        self._current_tab = None
-        self._tab_switching_enabled = True
         tab_data = self._create_tab_data()
-        self.NUM_ROWS = tab_data["num_rows"]
-        form_config = tab_data["tabs"]
-        self.NUM_ROWS += 2
-        self.NUM_COLUMNS = 1
+        tabs = tab_data["tabs"]
+        tab_rows = tab_data["tab_rows"]
+
+        self._num_rows = tab_rows + 2
+        self._num_columns = 1
         self._config = self._create_config()
         self._config.read(config_filename)
         self._unsaved_changes = False
 
         self._last_preset_filename = None
 
-        self.setGeometry(1200, 640, self.NUM_ROWS, self.NUM_COLUMNS)
-        self._create_tabs(form_config)
-
-        self._create_menu_bar(self.NUM_ROWS - 1, self.NUM_COLUMNS)
-
-        self._initialise_navigation()
-        first_tab = self._tab_groups.keys()[0]
-        self.setFocus(self._tab_menu_buttons[first_tab])
-        self.switch_tab(first_tab)
+        self.setGeometry(1200, 640, self._num_rows, self._num_columns)
+        
+        # Note: navigation is configured whenever the current tab is changed
+        # so there is no need to set it up now as we are about to display
+        # the first tab anyway...
+        self._create_menu_bar(self._num_rows - 1, self._num_columns)
+        
+        tab_viewer = TabViewer(tab_rows, 1, tabs)
+        self.placeControl(tab_viewer, 1, 0, row_span = tab_rows)
+        tab_viewer.focus_current_tab_menu_button()
+        self.connect(tab_viewer, self._change_made_in_tab)
 
         # Connect a key action (Backspace) to close the window.
         self.connect(pyxbmct.ACTION_NAV_BACK, self.close)
@@ -123,124 +129,9 @@ class AbstractConfigEditor(pyxbmct.AddonDialogWindow):
         """Callback for when some change is made in some tab"""
         # type: (str, Any) -> None
         self._unsaved_changes = True
-
-    def _create_tabs(self, form_config):
-        """Create all the tabs that are displayed"""
-        self._tab_groups = OrderedDict()
-
-        for tab in form_config:
-            tab_group = form_config[tab]["tab"](self._config)
-            self.connect(tab_group, self._change_made_in_tab)
-            self._tab_groups[tab] = tab_group
-            self.placeControl(
-                tab_group, 1, 0, columnspan=self.NUM_COLUMNS, rowspan=self.NUM_ROWS - 2
-            )
-            self._hide_tab(tab)
-
-        self._create_tab_menu_bar(form_config)
-
-    def _create_tab_menu_bar(self, form_config):
-        tab_group = pyxbmct.Group(1, len(self._tab_groups))
-        self.placeControl(
-            tab_group, 0, 0, columnspan=self.NUM_COLUMNS, pad_x=0, pad_y=0
-        )
-        self._tab_menu_buttons = {}
-
-        for col, title in enumerate(self._tab_groups):
-            button = controls.ButtonWithIcon(
-                title, form_config[title]["icon"], icon_pad_x=9
-            )
-            self._tab_menu_buttons[title] = button
-            tab_group.placeControl(button, 0, col, pad_x=0, pad_y=0)
-            self.connect(button, lambda tab=title: self.switch_tab(tab))
-
-    def _initialise_navigation(self):
-        """Set up the navigation between all the controls"""
-        # type: () -> None
-        # Some initialisation is done further down
-        self._tab_menu_buttons_control_down = {}
-        self._menu_bar_buttons_control_up = {}
-        control_down_methods = {}
-        control_up_methods = {}
-        current_tab = ""
-        for button_title in self._tab_menu_buttons:
-            button = self._tab_menu_buttons[button_title].get_button()
-            control_down_methods[button_title] = button.controlDown
-
-            def new_control_down(control, button=button_title):
-                control_down_methods[button](control)
-                self._tab_menu_buttons_control_down[current_tab][button] = control
-
-            button.controlDown = new_control_down
-
-        for button_title in self._menu_bar_buttons:
-            button = self._menu_bar_buttons[button_title].get_button()
-            control_up_methods[button_title] = button.controlUp
-
-            def new_control_up(control, button=button_title):
-                control_up_methods[button](control)
-                self._menu_bar_buttons_control_up[current_tab][button] = control
-
-            button.controlUp = new_control_up
-
-        for tab_title in self._tab_groups:
-            current_tab = tab_title
-            self._tab_menu_buttons_control_down[tab_title] = {}
-            self._menu_bar_buttons_control_up[tab_title] = {}
-            self._show_tab(tab_title)
-            self.autoNavigation()
-            self._hide_tab(tab_title)
-
-        for button_title in self._tab_menu_buttons:
-            button = self._tab_menu_buttons[button_title].get_button()
-            button.controlDown = control_down_methods[button_title]
-
-        for button_title in self._menu_bar_buttons:
-            button = self._menu_bar_buttons[button_title].get_button()
-            button.controlUp = control_up_methods[button_title]
-
-    def _hide_tab(self, tab_name):
-        self._tab_groups[tab_name].setVisible(False)
-        self._tab_groups[tab_name].setEnabled(False)
-
-    def _show_tab(self, tab_name):
-        self._tab_groups[tab_name].setVisible(True)
-        self._tab_groups[tab_name].setEnabled(True)
-
-    def switch_tab(self, tab_name):
-        """Hide and disable the current tab and make the given tab visible and
-        usable
-        """
-        # type: (str) -> None
-        # Stops errors when the user switches tabs too fast
-        if self._tab_switching_enabled and self._current_tab != tab_name:
-            self._tab_switching_enabled = False
-            previous_tab = self._current_tab
-            if previous_tab != None:
-                self._tab_menu_buttons[previous_tab].setEnabled(True)
-                self._hide_tab(previous_tab)
-
-            self._show_tab(tab_name)
-
-            for button_title in self._tab_menu_buttons:
-                button = self._tab_menu_buttons[button_title].get_button()
-                button.controlDown(
-                    self._tab_menu_buttons_control_down[tab_name][button_title]
-                )
-
-            for button_title in self._menu_bar_buttons:
-                button = self._menu_bar_buttons[button_title].get_button()
-                button.controlUp(
-                    self._menu_bar_buttons_control_up[tab_name][button_title]
-                )
-
-            self._tab_menu_buttons[tab_name].setEnabled(False)
-
-            self._current_tab = tab_name
-
-            self._tab_switching_enabled = True
-
+ 
     def _create_menu_bar(self, row, num_cols):
+        # type: (int, int) -> None
         self._menu_bar_buttons = {}
 
         menu_group = pyxbmct.Group(1, 2)
