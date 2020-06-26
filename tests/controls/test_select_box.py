@@ -27,7 +27,7 @@ def _create_select_box(mocker, options, **kwargs):
         def setLabel(self, value):
             self._label_for_test = value
         button.setLabel = MethodType(setLabel, button)
-        mocker.spy(button, "setLabel")
+        button.setLabel = mocker.spy(button, "setLabel")
          
         return select_box
 
