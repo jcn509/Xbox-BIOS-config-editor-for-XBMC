@@ -116,7 +116,7 @@ class ColourPicker(AbstractControl, ButtonWithIcon):
         self._current_colour = self._get_colour_in_correct_format(default_colour)
         
         colour_square = _ColourSquare(self._current_colour)
-        super(ColourPicker, self).__init__(self._current_colour, colour_square, *args, **kwargs)
+        super(ColourPicker, self).__init__(self._current_colour, colour_square, set_icon_colour_diffuse_on_set_enabled=False,  *args, **kwargs)
 
         self._window_title = window_title
         self._colour_chosen_callback = None
@@ -143,6 +143,9 @@ class ColourPicker(AbstractControl, ButtonWithIcon):
                 will not be triggered
         """
         # type (str, bool) -> None
+        
+        import xbmc
+        xbmc.log("set value: "+colour, 2)
         colour = self._get_colour_in_correct_format(colour)
         self._current_colour = colour
         
@@ -185,9 +188,7 @@ class ColourPicker(AbstractControl, ButtonWithIcon):
         """
         super(ColourPicker, self)._placedCallback(window, *args, **kwargs)
 
-        # Need to temporarily disable _connectCallback so that it has no effect
-        # when window.connect is called below
-        temp = self._connectCallback
-        self._connectCallback = lambda x, y: True
-        window.connect(self, self.pick_colour)
-        self._connectCallback = temp
+        # Because _connectCallback from ButtonWithIcon has been overridden we
+        # must connect directly to the button
+        window.connect(self.get_button(), self.pick_colour)
+        self.set_value(self._current_colour, False) # Needed for testing purposes

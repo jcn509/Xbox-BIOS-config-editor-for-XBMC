@@ -1,14 +1,15 @@
 """Tests for controls.ButtonWithIcon"""
+import math
+import lib
+import os
+import sys
 import warnings
 
 import pytest
 import pyxbmct
 
 from lib.controls import ButtonWithIcon
-import os
-import sys
-import math
-import lib
+from .utils import create_window_place_control
 
 def create_button_with_icon(mocker, **kwargs):
     # Get a funny deprecation warning from somewhere inside PyXBMCt 
@@ -34,35 +35,37 @@ def create_button_with_icon(mocker, **kwargs):
 def button_with_icon(mocker):
     return create_button_with_icon(mocker)
 
-def _create_window_place_control(control, width=800, height=500, rows=5, columns=5):
-    window = pyxbmct.AddonFullWindow()
-    window.setGeometry(width, height, rows, columns)
-    window.placeControl(control, 0, 0)
-
-    return window
-
-def test_disable(button_with_icon):
-    """Ensure that the button is disabled and the icon is made slightly transparent"""
+@pytest.mark.parametrize(
+    "enable, set_icon_colour_diffuse_on_set_enabled, expected_colour_diffuse",
+    (
+        (False, False, None),
+        (False, True, "0x5FFFFFFF"),
+        (True, False, None),
+        (True, True, "0xFFFFFFFF")
+    )
+)
+def test_set_enable(mocker, enable, set_icon_colour_diffuse_on_set_enabled, expected_colour_diffuse):
+    """Ensure that the button is correctly enabled or disabled and the icons
+    opacity is adjusted appropriately
+    """
+    button_with_icon = create_button_with_icon(mocker, set_icon_colour_diffuse_on_set_enabled=set_icon_colour_diffuse_on_set_enabled)
+    button_with_icon.setEnabled(enable)
+   
     button = button_with_icon.get_button()
-    icon = button_with_icon.get_icon()
-    button_with_icon.setEnabled(False)
-    button.setEnabled.assert_called_once_with(False)
-    icon.setColorDiffuse.assert_called_once_with("0x5FFFFFFF")
+    button.setEnabled.assert_called_once_with(enable)
 
-def test_enable(button_with_icon):
-    """Ensure that the button is enabled and the icon is made opaque"""
-    button = button_with_icon.get_button()
     icon = button_with_icon.get_icon()
-    button_with_icon.setEnabled(True)
-    button.setEnabled.assert_called_once_with(True)
-    icon.setColorDiffuse.assert_called_once_with("0xFFFFFFFF")
+    if expected_colour_diffuse is None:
+        icon.setColorDiffuse.assert_not_called()
+    else:
+        icon.setColorDiffuse.assert_called_once_with(expected_colour_diffuse)
 
 def test_connect(button_with_icon, mocker):
     """Ensure that connected callbacks are triggered when the button is clicked
 
     It is the button, not the 'button with icon' that users will actually click on    
     """
-    window = _create_window_place_control(button_with_icon)
+    window = create_window_place_control(button_with_icon)
     mocker.spy(window, "connect")
     test_func = mocker.Mock()
 
@@ -112,6 +115,6 @@ def test_icon_position(mocker, button_x, button_width, icon_pad_x, icon_width, i
     button.getPosition.return_value = (button_x, 0)
     button.getWidth.return_value = button_width
     
-    window = _create_window_place_control(button_with_icon)
+    window = create_window_place_control(button_with_icon)
     # Only care about the last call. First element of call is x coordinate
     icon.setPosition.assert_called_with(expected_icon_x, icon_y)

@@ -24,6 +24,7 @@ class ButtonWithIcon(pyxbmct.Group):
         icon_full_path=False,
         icon_pad_x=5,
         icon_pad_y=5,
+        set_icon_colour_diffuse_on_set_enabled = True,
         *args,
         **kwargs
     ):
@@ -36,6 +37,7 @@ class ButtonWithIcon(pyxbmct.Group):
         icon_full_path=False,
         icon_pad_x=5,
         icon_pad_y=5,
+        set_icon_colour_diffuse_on_set_enabled = True,
         *args,
         **kwargs
     ):
@@ -48,19 +50,20 @@ class ButtonWithIcon(pyxbmct.Group):
         :parm icon_pad_y: pixel gap between the top and bottom edges of the\
                 button and the icon
         """
-        # type: (str, Union[str, pyxbmct.Image], bool, int, int, Any, Any) -> None
+        # type: (str, Union[str, pyxbmct.Image], bool, int, int, bool, Any, Any) -> None
         super(ButtonWithIcon, self).__init__(1, 2, *args, **kwargs)
         
+        self._set_icon_colour_diffuse_on_set_enabled = set_icon_colour_diffuse_on_set_enabled
 
-        if isinstance(icon, pyxbmct.Image):
-            self._icon = icon # type: pyxbmct.Image
-        else:
+        if isinstance(icon, basestring):
             if not icon_full_path:
                 icon = os.path.join(
                     _addon_path, "resources", "media", icon
                 )    
             self._icon = pyxbmct.Image(icon, aspectRatio=2)
-        
+        else:        
+            self._icon = icon # type: pyxbmct.Image
+
         self._button = pyxbmct.Button(text)
         self._icon_pad_x = icon_pad_x
         self._icon_pad_y = icon_pad_y
@@ -99,10 +102,12 @@ class ButtonWithIcon(pyxbmct.Group):
         """
         # type: (bool) -> None
         self._button.setEnabled(enabled)
-        if enabled:
-            self._icon.setColorDiffuse("0xFFFFFFFF")
-        else:
-            self._icon.setColorDiffuse("0x5FFFFFFF")
+         
+        if self._set_icon_colour_diffuse_on_set_enabled:
+            if enabled:
+                self._icon.setColorDiffuse("0xFFFFFFFF")
+            else:
+                self._icon.setColorDiffuse("0x5FFFFFFF")
 
     def _connectCallback(self, callback, window):
         # type: (Callable, Any) -> bool

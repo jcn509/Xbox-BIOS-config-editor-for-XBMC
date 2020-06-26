@@ -27,8 +27,6 @@ class ColourPickerFull(AbstractControl, pyxbmct.Group):
                 characters represent the alpha channel
         """
         # type: (bool, str, Any, Any) -> None
-        self._current_colour = self._get_colour_in_correct_format(default_colour)
-
         num_rows = 3
 
         if alpha_selector:
@@ -38,7 +36,9 @@ class ColourPickerFull(AbstractControl, pyxbmct.Group):
 
         self._num_rows = num_rows
         self._alpha_selector = alpha_selector
-    
+        self._current_colour = self._get_colour_in_correct_format(default_colour)
+        self._colour_changed_callback = None
+
     def _get_colour_in_correct_format(self, colour):
         """Remove alpha component if it shouldn't be there"""
         # type: (str) -> str
@@ -96,9 +96,17 @@ class ColourPickerFull(AbstractControl, pyxbmct.Group):
         """
         colour = self._get_colour_in_correct_format(colour)
         # type (str, bool) -> None
+
+        # The way colours are modified when using sliders depends on whether
+        # the colour starts with 0x or not
+        if self._current_colour.startswith("0x") and not colour.startswith("0x"):
+            colour = "0x" + colour  
+        elif not self._current_colour.startswith("0x") and colour.startswith("0x"):
+            colour = colour[2:]
+ 
         self._current_colour = colour
         self._colour_square.setColorDiffuse(self._current_colour)
-
+        
         if trigger_callback and self._colour_changed_callback:
             self._colour_changed_callback(colour)
 
