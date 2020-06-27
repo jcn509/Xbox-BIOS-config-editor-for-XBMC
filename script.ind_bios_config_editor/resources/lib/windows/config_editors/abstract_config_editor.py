@@ -1,6 +1,6 @@
 """Abstract config editor window. Contains common functionality"""
 
-from collections import OrderedDict
+from collections import namedtuple, OrderedDict
 from abc import ABCMeta, abstractmethod
 
 try:
@@ -18,6 +18,9 @@ import pyxbmct
 from ... import controls
 from .reset_to_default import ResetToDefault
 from ...tabs import TabViewer
+
+
+TabConfig = namedtuple("TabConfig", ("tabs", "tab_icons", "tab_num_rows"))
 
 class AbstractConfigEditor(pyxbmct.AddonDialogWindow):
     """Abstract config editor window. Contains common functionality"""
@@ -40,10 +43,9 @@ class AbstractConfigEditor(pyxbmct.AddonDialogWindow):
 
         self._config_filename = config_filename
         tab_data = self._create_tab_data()
-        tabs = tab_data["tabs"]
-        tab_rows = tab_data["tab_rows"]
+        tab_rows = tab_data.tab_num_rows
 
-        self._num_rows = tab_rows + 2
+        self._num_rows = tab_rows + 1
         self._num_columns = 1
         self._config = self._create_config()
         self._config.read(config_filename)
@@ -58,9 +60,9 @@ class AbstractConfigEditor(pyxbmct.AddonDialogWindow):
         # the first tab anyway...
         self._create_menu_bar(self._num_rows - 1, self._num_columns)
         
-        tab_viewer = TabViewer(tab_rows, 1, tabs)
-        self.placeControl(tab_viewer, 1, 0, row_span = tab_rows)
-        tab_viewer.focus_current_tab_menu_button()
+        tab_viewer = TabViewer(self._config, tab_rows, 1, tab_data.tabs, tab_icons=tab_data.tab_icons)
+        self.placeControl(tab_viewer, 0, 0, rowspan = tab_rows)
+        tab_viewer.focus_tab_menu_button(tab_data.tabs.keys()[1])
         self.connect(tab_viewer, self._change_made_in_tab)
 
         # Connect a key action (Backspace) to close the window.
@@ -68,6 +70,7 @@ class AbstractConfigEditor(pyxbmct.AddonDialogWindow):
 
     @abstractmethod
     def _create_tab_data(self):
+        # type: () -> TabConfig
         pass
 
     @abstractmethod

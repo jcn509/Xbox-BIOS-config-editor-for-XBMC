@@ -4,7 +4,7 @@ import warnings
 import pytest
 
 from lib.controls import ColourPicker
-from .utils import create_window_place_control
+from ..utils import create_window_place_control
 
 
 def create_colour_picker(mocker, **kwargs):

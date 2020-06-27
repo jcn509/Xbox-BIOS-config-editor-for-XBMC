@@ -19,7 +19,6 @@ class AbstractTab(pyxbmct.Group):
         self._default_columnspan = default_columnspan
         self._fields = {}
         self._value_changed_callback = None
-        self._value_converter = self._create_value_converter()
         self._last_preset_filename = None
 
     def reset_to_default(self):
@@ -159,10 +158,6 @@ class AbstractTab(pyxbmct.Group):
 
     @abstractmethod
     def _create_controls(self):
-        pass
-
-    @abstractmethod
-    def _create_value_converter(self):
         pass
 
     def _placedCallback(self, window, *args, **kwargs):
