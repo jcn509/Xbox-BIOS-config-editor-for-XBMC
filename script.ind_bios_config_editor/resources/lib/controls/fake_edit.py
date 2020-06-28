@@ -21,12 +21,11 @@ class FakeEdit(AbstractControl, ButtonWithIcon):
         default_value="Enter something...",
         update_label_on_enter=True,
         keyboard_title="Enter something...",
-        icon_pad_x=12,
         *args,
         **kwargs
     ):
         return super(FakeEdit, cls).__new__(
-            cls, default_value, "edit.png", icon_pad_x=icon_pad_x, *args, **kwargs
+            cls, default_value, "edit.png", *args, **kwargs
         )
 
     def __init__(
@@ -34,7 +33,6 @@ class FakeEdit(AbstractControl, ButtonWithIcon):
         default_value="Enter something...",
         update_label_on_enter=True,
         keyboard_title="Enter something...",
-        icon_pad_x=12,
         *args,
         **kwargs
     ):
@@ -42,9 +40,9 @@ class FakeEdit(AbstractControl, ButtonWithIcon):
         :param update_label_on_enter: change button label value to what is entered.
         :param keyboard_title: the title displayed on the popup keyboard window
         """
-        # type: (str, bool, str, int, Any, Any) -> None
+        # type: (str, bool, str, Any, Any) -> None
         super(FakeEdit, self).__init__(
-            default_value, "edit.png", icon_pad_x=icon_pad_x, *args, **kwargs
+            default_value, "edit.png", *args, **kwargs
         )
         self._keyboard_title = keyboard_title
         self._update_label_on_enter = update_label_on_enter

@@ -4,8 +4,8 @@ from .abstract_ind_bios_tab import AbstractIndBiosTab
 
 
 class Basic(AbstractIndBiosTab):
-    def __init__(self, config):
-        super(Basic, self).__init__(config, 8, default_columnspan=2)
+    def __init__(self, config, tab_viewer):
+        super(Basic, self).__init__(config, tab_viewer, 8, default_columnspan=2)
 
     def _create_controls(self):
         self._place_label("In game reset mode", 0, 0)

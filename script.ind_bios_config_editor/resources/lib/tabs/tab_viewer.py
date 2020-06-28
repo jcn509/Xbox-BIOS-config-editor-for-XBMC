@@ -3,13 +3,13 @@
 try:
     # typing not available on XBMC4Xbox
     from typing import Any, Callable, Dict, MutableMapping, Type, Union
-    from .abstract_tab import AbstractTab
     from ..configs import AbstractConfig
 except:
    pass 
 
 import pyxbmct
 
+from .abstract_tab import AbstractTab
 from .. import controls
 
 class TabViewer(pyxbmct.Group):
@@ -23,7 +23,7 @@ class TabViewer(pyxbmct.Group):
     (including when the viewer is first created and loads the first tab)!
     """
     
-    def __new__(cls, config, total_size, menu_size, tabs, tab_icons = None, vertical_menu_bar = False):
+    def __new__(cls, config, total_size, menu_size, tabs, tab_icons = None, vertical_menu_bar = False, tab_switching_set_enabled_callback = None):
         num_columns = 1
         num_rows = total_size
         if vertical_menu_bar:
@@ -31,7 +31,7 @@ class TabViewer(pyxbmct.Group):
 
         return super(TabViewer, cls).__new__(cls, num_rows, num_columns) 
         
-    def __init__(self, config, total_size, menu_size, tabs, tab_icons = None, icon_pad_x=9, vertical_menu_bar = False):
+    def __init__(self, config, total_size, menu_size, tabs, tab_icons = None, vertical_menu_bar = False, tab_switching_set_enabled_callback = None):
         """:param total_size: total number of columns in the grid layout if\
                 vertical_menu_bar is True, otherwise the total number of rows
         :param menu_size: total number of columns that the menu bar takes up\
@@ -43,10 +43,13 @@ class TabViewer(pyxbmct.Group):
         :param tab_icons: optional, use it to define icons for the tab buttons
         :param icon_pad_x: the distance between the icons and the right edge\
                 of the tab buttons
-        :vertical_menu_bar: if True create a vertical menu bar on the left of\
-                the tab viewer otherwise create a horizontal one at the top
+        :param vertical_menu_bar: if True create a vertical menu bar on the\
+                left of the tab viewer otherwise create a horizontal one at\
+                the top
+        :param tab_switching_set_enabled_callback: callback to call when tab\
+                switching is enabled or disabled
         """
-        # type: (AbstractConfig, int, int, MutableMapping[str, AbstractTab], Dict[str, Union[str, pyxbmct.Image]], int, bool) -> None
+        # type: (AbstractConfig, int, int, MutableMapping[str, AbstractTab], Dict[str, Union[str, pyxbmct.Image]], bool, Callable) -> None
         
         self._num_columns = 1
         self._num_rows = total_size
@@ -54,7 +57,8 @@ class TabViewer(pyxbmct.Group):
             self._num_rows, self._num_columns = self._num_columns, self._num_rows
 
         super(TabViewer, self).__init__(self._num_rows, self._num_columns) 
-        
+        self._tab_switching_set_enabled_callback = tab_switching_set_enabled_callback
+
         self._config = config
 
         # Introduced this when I ran to issues if the user tried to switch tabs
@@ -69,10 +73,48 @@ class TabViewer(pyxbmct.Group):
         
         self._tabs = tabs
         self._tab_icons = tab_icons
-        self._icon_pad_x = icon_pad_x
 
         # Not been placed yet
         self._window = None
+    
+    def setEnabled(self, enabled):
+        """Have to overwrite this method to enable controls only on the
+        current tab!
+
+        Enable or disable all the controls in the tab viewer
+        """
+        # type: (bool) -> None 
+        super(TabViewer, self).setEnabled(enabled)
+        if enabled:
+            for tab_name in self._tabs:
+                if tab_name != self._current_tab:
+                    tab = self._tabs[tab_name]
+                    if isinstance(tab, AbstractTab):
+                        tab.setEnabled(False)
+            
+            self._tab_menu_buttons[self._current_tab].setEnabled(False)
+
+    def setVisible(self, is_visible):
+        """Have to overwrite this method to only make controls on the
+        current tab visible!
+
+        Enable or disable all the controls in the tab viewer
+        """
+        # type: (bool) -> None
+        super(TabViewer, self).setVisible(is_visible)
+        if is_visible:
+            for tab_name in self._tabs:
+                if tab_name != self._current_tab:
+                    tab = self._tabs[tab_name]
+                    if isinstance(tab, AbstractTab):
+                        tab.setVisible(False)
+
+    def set_tab_switching_enabled(self, enabled):
+        """Enable or disable tab switching"""
+        # type: (bool) -> None
+        self._tab_switching_enabled = enabled
+        if self._tab_switching_set_enabled_callback is not None:
+            self._tab_switching_set_enabled_callback(enabled)
 
     def _create_tab_menu_bar(self):
         """Create the menu bar used to choose which tab to view
@@ -81,7 +123,11 @@ class TabViewer(pyxbmct.Group):
         viewer otherwise it is created at the top
         """
         # type () -> None
-        tab_group = pyxbmct.Group(1, len(self._tabs))
+        tab_group_rows = 1
+        tab_group_columns = len(self._tabs)
+        if self._vertical_menu_bar:
+            tab_group_rows, tab_group_columns = tab_group_columns, tab_group_rows
+        tab_group = pyxbmct.Group(tab_group_rows, tab_group_columns)
         
         row_span = 1
         column_span = self._menu_size
@@ -92,17 +138,23 @@ class TabViewer(pyxbmct.Group):
             tab_group, 0, 0, columnspan=column_span, rowspan=row_span, pad_x=0, pad_y=0
         )
         self._tab_menu_buttons = {}
-
-        for col, title in enumerate(self._tabs):
+        
+        # if vertical_menu_bar then position is the row at which the
+        # button should be placed. Otherwise it is the column
+        for position, title in enumerate(self._tabs):
             button = None
             if self._tab_icons and title in self._tab_icons:
                 button = controls.ButtonWithIcon(
-                    title, self._tab_icons[title], icon_pad_x=self._icon_pad_x
+                    title, self._tab_icons[title]
                 )
             else:
                 button = pyxbmct.Button(title)
             self._tab_menu_buttons[title] = button
-            tab_group.placeControl(button, 0, col, pad_x=0, pad_y=0)
+            row = 0
+            column = position
+            if self._vertical_menu_bar:
+                row, column = column, row
+            tab_group.placeControl(button, row, column, pad_x=0, pad_y=0)
             self._window.connect(button, lambda tab=title: self.switch_tab(tab))
     
     def focus_tab_menu_button(self, tab_name):
@@ -117,7 +169,7 @@ class TabViewer(pyxbmct.Group):
     
     def _create_tab(self, tab_class):
         # type: (Type) -> AbstractTab
-        tab = tab_class(self._config)
+        tab = tab_class(self._config, self)
 
         row = self._menu_size
         column = 0
@@ -152,7 +204,7 @@ class TabViewer(pyxbmct.Group):
         # type: (str) -> None
         # Stops errors when the user switches tabs too fast
         if self._tab_switching_enabled and self._current_tab != tab_name:
-            self._tab_switching_enabled = False
+            self.set_tab_switching_enabled(False)
             previous_tab = self._current_tab
             if previous_tab != None:
                 self._tab_menu_buttons[previous_tab].setEnabled(True)
@@ -175,7 +227,7 @@ class TabViewer(pyxbmct.Group):
 
             self._current_tab = tab_name
 
-            self._tab_switching_enabled = True
+            self.set_tab_switching_enabled(True)
     
     def _change_made_in_tab(self, field, value):
         # type: (str, Any) -> None

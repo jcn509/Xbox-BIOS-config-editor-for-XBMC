@@ -61,7 +61,7 @@ class AbstractConfigEditor(pyxbmct.AddonDialogWindow):
         self._create_menu_bar(self._num_rows - 1, self._num_columns)
         
         tab_viewer = TabViewer(self._config, tab_rows, 1, tab_data.tabs, tab_icons=tab_data.tab_icons)
-        self.placeControl(tab_viewer, 0, 0, rowspan = tab_rows)
+        self.placeControl(tab_viewer, 0, 0, rowspan = tab_rows, pad_x=0, pad_y=0)
         tab_viewer.focus_tab_menu_button(tab_data.tabs.keys()[1])
         self.connect(tab_viewer, self._change_made_in_tab)
 
@@ -140,16 +140,15 @@ class AbstractConfigEditor(pyxbmct.AddonDialogWindow):
         menu_group = pyxbmct.Group(1, 2)
         self.placeControl(menu_group, row, 0, columnspan=num_cols, pad_x=0, pad_y=0)
 
-        icon_pad_x = 7
         self._save_button = controls.ButtonWithIcon(
-            "Save Config", "save_item.png", icon_pad_x=icon_pad_x
+            "Save Config", "save_item.png"
         )
         menu_group.placeControl(self._save_button, 0, 0)
         self.connect(self._save_button, self.save_config)
         self._menu_bar_buttons["Save Config"] = self._save_button
 
         self._reset_button = controls.ButtonWithIcon(
-            "Reset To Default", "arrow_repeat.png", icon_pad_x=icon_pad_x
+            "Reset To Default", "arrow_repeat.png"
         )
         menu_group.placeControl(self._reset_button, 0, 1)
         self.connect(self._reset_button, self._reset_to_default_button_clicked)

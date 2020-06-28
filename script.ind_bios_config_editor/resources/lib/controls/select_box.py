@@ -17,7 +17,7 @@ class SelectBox(AbstractControl, ButtonWithIcon):
     def __new__(cls, options, default="", popup_window_title="Select", *args, **kwargs):
         # Default is stored in the label
         return super(SelectBox, cls).__new__(
-            cls, default, "menu_option.png", icon_pad_x=0, *args, **kwargs
+            cls, default, "menu_option.png", *args, **kwargs
         )
 
     def __init__(
@@ -25,7 +25,7 @@ class SelectBox(AbstractControl, ButtonWithIcon):
     ):
         # type: (Union[List[str],Tuple[str, ...]], str, str, Any, Any) -> None
         super(SelectBox, self).__init__(
-            default, "menu_option.png", icon_pad_x=0, *args, **kwargs
+            default, "menu_option.png", *args, **kwargs
         )
         if not isinstance(options, (tuple, list)):
             raise TypeError("options must be a list or tuple")

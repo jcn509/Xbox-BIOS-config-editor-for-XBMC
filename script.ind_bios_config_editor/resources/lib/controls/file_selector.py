@@ -35,14 +35,12 @@ class FileSelector(AbstractControl, ButtonWithIcon):
         use_thumbs=False,
         treat_as_folder=False,
         custom_icon=None,
-        icon_pad_x=8,
-        icon_pad_y=5,
         *args,
         **kwargs
     ):
         icon = _get_icon_filename(browse_type, custom_icon)
         return super(FileSelector, cls).__new__(
-            cls, default_filename, icon, icon_pad_x=10, *args, **kwargs
+            cls, default_filename, icon, *args, **kwargs
         )
 
     def __init__(
@@ -56,8 +54,6 @@ class FileSelector(AbstractControl, ButtonWithIcon):
         use_thumbs=False,
         treat_as_folder=False,
         custom_icon=None,
-        icon_pad_x=8,
-        icon_pad_y=5,
         *args,
         **kwargs
     ):
@@ -75,13 +71,11 @@ class FileSelector(AbstractControl, ButtonWithIcon):
         :param icon_pad_x: for the icon displayed on the button
         :param icon_pad_y: for the icon displayed on the button
         """
-        # type: (str, bool, int, str, str, str, bool, bool, str, int, int, Any, Any) -> None
+        # type: (str, bool, int, str, str, str, bool, bool, str, Any, Any) -> None
         icon = _get_icon_filename(browse_type, custom_icon)
         super(FileSelector, self).__init__(
             default_filename,
             icon,
-            icon_pad_x=icon_pad_x,
-            icon_pad_y=icon_pad_y,
             *args,
             **kwargs
         )

@@ -4,8 +4,8 @@ from .abstract_ind_bios_tab import AbstractIndBiosTab
 
 
 class Advanced(AbstractIndBiosTab):
-    def __init__(self, config):
-        super(Advanced, self).__init__(config, 2)
+    def __init__(self, config, tab_viewer):
+        super(Advanced, self).__init__(config, tab_viewer, 2)
 
     def _create_controls(self):
         self._place_and_link(

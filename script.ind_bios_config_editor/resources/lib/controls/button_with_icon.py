@@ -24,6 +24,7 @@ class ButtonWithIcon(pyxbmct.Group):
         icon_full_path=False,
         icon_pad_x=5,
         icon_pad_y=5,
+        icon_padding_percentage_of_button_size = True,
         set_icon_colour_diffuse_on_set_enabled=True,
         *args,
         **kwargs
@@ -37,6 +38,7 @@ class ButtonWithIcon(pyxbmct.Group):
         icon_full_path=False,
         icon_pad_x=5,
         icon_pad_y=5,
+        icon_padding_percentage_of_button_size = True,
         set_icon_colour_diffuse_on_set_enabled=True,
         *args,
         **kwargs
@@ -45,12 +47,17 @@ class ButtonWithIcon(pyxbmct.Group):
         :param icon: either an icon filename or a :pyxbmct.Image:
         :param icon_full_path: if False icon filename is seen as a relative\
                 path from resources/media
-        :param icon_pad_x: pixel gap between the right hand edge of the\
-                button and the icon
-        :parm icon_pad_y: pixel gap between the top and bottom edges of the\
-                button and the icon
+        :param icon_pad_x: gap between the right hand edge of the button and\
+                the icon
+        :param icon_pad_y: gap between the top and bottom edges of the button\
+                and the icon
+        :param icon_padding_percentage_of_button_size: if True then the icon\
+                padding is a percentage of the overall button size rather than
+                a number of pixels
+        :param set_icon_colour_diffuse_on_set_enabled: if True, when the\
+                button is disabled the icon will become slightly transparent
         """
-        # type: (str, Union[str, pyxbmct.Image], bool, int, int, bool, Any, Any) -> None
+        # type: (str, Union[str, pyxbmct.Image], bool, int, int, bool, bool, Any, Any) -> None
         super(ButtonWithIcon, self).__init__(1, 2, *args, **kwargs)
 
         self._set_icon_colour_diffuse_on_set_enabled = (
@@ -67,6 +74,7 @@ class ButtonWithIcon(pyxbmct.Group):
         self._button = pyxbmct.Button(text)
         self._icon_pad_x = icon_pad_x
         self._icon_pad_y = icon_pad_y
+        self._icon_padding_percentage_of_button_size = icon_padding_percentage_of_button_size
 
     def get_button(self):
         """:returns: the button component of the ButtonWithIcon"""
@@ -125,6 +133,14 @@ class ButtonWithIcon(pyxbmct.Group):
         self.placeControl(self._button, 0, 0, pad_x=0, pad_y=0, columnspan=2)
 
         self._icon._placedCallback = self._icon_placed
+
+        icon_pad_x = self._icon_pad_x
+        icon_pad_y = self._icon_pad_y
+        if self._icon_padding_percentage_of_button_size:
+            button_side = min(self._button.getHeight(), self._button.getWidth())
+            icon_pad_x = int(round((icon_pad_x/100.0) * button_side))
+            icon_pad_y = int(round((icon_pad_y/100.0) * button_side))
+        
         self.placeControl(
-            self._icon, 0, 1, pad_x=self._icon_pad_x, pad_y=self._icon_pad_y
+            self._icon, 0, 1, pad_x=icon_pad_x, pad_y=icon_pad_y
         )

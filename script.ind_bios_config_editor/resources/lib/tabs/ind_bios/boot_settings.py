@@ -4,8 +4,8 @@ from .abstract_ind_bios_tab import AbstractIndBiosTab
 
 
 class BootSettings(AbstractIndBiosTab):
-    def __init__(self, config):
-        super(BootSettings, self).__init__(config, 10)
+    def __init__(self, config, tab_viewer):
+        super(BootSettings, self).__init__(config, tab_viewer, 10)
 
     def _create_controls(self):
         self._place_label("Dash 1", 0, 0)

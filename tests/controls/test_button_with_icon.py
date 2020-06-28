@@ -95,14 +95,21 @@ def test_connect(button_with_icon, mocker):
 
 
 @pytest.mark.parametrize(
-    "button_x, button_width, icon_pad_x, icon_width, icon_height, expected_icon_x, icon_y",
+    "button_x, button_width, icon_pad_x, icon_padding_percentage_of_button_size, icon_width, icon_height, expected_icon_x, icon_y",
     (
-        (0, 400, 4, 40, 50, 356, 10),
-        (0, 400, 4, 40, 50, 356, 10),
-        (20, 400, 4, 40, 50, 376, 10),
-        (0, 400, 4, 40, 50, 356, 54),
-        (-10, 30, 5, 10, 90, 5, 12),
-        (-10, 30, 5, 90, 10, -35, 12),
+        (0, 400, 4, False, 40, 50, 356, 10),
+        (0, 400, 4, False, 40, 50, 356, 10),
+        (20, 400, 4, False, 40, 50, 376, 10),
+        (0, 400, 4, False, 40, 50, 356, 54),
+        (-10, 30, 5, False, 10, 90, 5, 12),
+        (-10, 30, 5, False, 90, 10, -35, 12),
+
+        (0, 400, 4, True, 40, 50, 356, 10),
+        (0, 400, 4, True, 40, 50, 356, 10),
+        (20, 400, 4, True, 40, 50, 376, 10),
+        (0, 400, 4, True, 40, 50, 356, 54),
+        (-10, 30, 5, True, 10, 90, 5, 12),
+        (-10, 30, 5, True, 90, 10, -35, 12),
     ),
 )
 def test_icon_position(
@@ -110,6 +117,7 @@ def test_icon_position(
     button_x,
     button_width,
     icon_pad_x,
+    icon_padding_percentage_of_button_size,
     icon_width,
     icon_height,
     expected_icon_x,
@@ -120,7 +128,7 @@ def test_icon_position(
     Its X value should be modified
     Its Y should be whatever is set by placeControl
     """
-    button_with_icon = create_button_with_icon(mocker, icon_pad_x=icon_pad_x)
+    button_with_icon = create_button_with_icon(mocker, icon_pad_x=icon_pad_x, icon_padding_percentage_of_button_size=icon_padding_percentage_of_button_size)
 
     button = button_with_icon.get_button()
     icon = button_with_icon.get_icon()

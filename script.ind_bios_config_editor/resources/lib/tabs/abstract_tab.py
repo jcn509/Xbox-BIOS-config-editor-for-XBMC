@@ -6,13 +6,13 @@ from .. import controls
 class AbstractTab(pyxbmct.Group):
     __metaclass__ = ABCMeta
 
-    NUM_ROWS = 10
+    NUM_ROWS = 5
 
-    def __new__(cls, config, num_columns=4, default_columnspan=1):
+    def __new__(cls, config, tab_viewer, num_columns=4, default_columnspan=1):
         # Group.__new__ is not responsible for setting number of rows/columns
         return super(AbstractTab, cls).__new__(cls, cls.NUM_ROWS, 0)
 
-    def __init__(self, config, num_columns=4, default_columnspan=1):
+    def __init__(self, config, tab_viewer, num_columns=4, default_columnspan=1):
         super(AbstractTab, self).__init__(self.NUM_ROWS, num_columns)
         self._config = config
         self._num_columns = num_columns
@@ -20,6 +20,7 @@ class AbstractTab(pyxbmct.Group):
         self._fields = {}
         self._value_changed_callback = None
         self._last_preset_filename = None
+        self._tab_viewer = tab_viewer
 
     def reset_to_default(self):
         defaults = self._config.defaults()
@@ -27,10 +28,14 @@ class AbstractTab(pyxbmct.Group):
             value = defaults[field]
             self._config.set(field, value)
             self._set_control_value(field, value, False)
-
-    def _value_changed(self, field, value, control):
+    
+    def _call_value_changed_callback_if_exists(self, field, value):
         if self._value_changed_callback:
             self._value_changed_callback(field, value)
+
+
+    def _value_changed(self, field, value):
+        self._call_value_changed_callback_if_exists(field, value)
         self._config.set(field, value)
 
     def _connectCallback(self, callback, window):
@@ -67,22 +72,11 @@ class AbstractTab(pyxbmct.Group):
         save_preset_window.doModal()
         del save_preset_window
 
-    def create_horizontal_rule(self, row):
-        self.placeControl(
-            controls.HorizontalRule(),
-            row,
-            0,
-            columnspan=self._num_columns,
-            pad_x=0,
-            pad_y=0,
-        )
-
     def _place_load_preset_button(self, row, column, columnspan=None, *args, **kwargs):
         self._load_preset_button = controls.FileSelector(
             default_filename="Load Preset",
             update_label_on_select=False,
             file_select_window_title="Load Preset",
-            icon_pad_x=7,
             custom_icon="file_arrow_up.png",
         )
         self.placeControl(
@@ -97,7 +91,7 @@ class AbstractTab(pyxbmct.Group):
 
     def _place_save_preset_button(self, row, column, columnspan=None, *args, **kwargs):
         save_preset_button = controls.ButtonWithIcon(
-            "Save Preset", "file_arrow_down.png", icon_pad_x=7
+            "Save Preset", "file_arrow_down.png"
         )
         self.placeControl(
             save_preset_button, row, column, columnspan=columnspan, *args, **kwargs
@@ -108,7 +102,7 @@ class AbstractTab(pyxbmct.Group):
 
         self._fields[field] = control
 
-        callback = lambda value=None: self._value_changed(field, value, control)
+        callback = lambda value=None: self._value_changed(field, value)
         self._window.connect(control, callback)
         self.placeControl(control, row, column, *args, **kwargs)
 
@@ -144,16 +138,6 @@ class AbstractTab(pyxbmct.Group):
             columnspan = self._default_columnspan
         super(AbstractTab, self).placeControl(
             control, row, column, rowspan, columnspan, pad_x, pad_y
-        )
-
-    def create_horizontal_rule(self, row):
-        self.placeControl(
-            controls.HorizontalRule(),
-            row,
-            0,
-            columnspan=self._num_columns,
-            pad_x=0,
-            pad_y=0,
         )
 
     @abstractmethod
