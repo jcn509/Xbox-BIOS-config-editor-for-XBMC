@@ -77,6 +77,14 @@ class TabViewer(pyxbmct.Group):
         # Not been placed yet
         self._window = None
     
+    def get_tabs(self):
+        """:returns: a dict containing all the tab where they keys are the\
+                tab names. None values mean that the tab hasn't been\
+                created yet
+        """
+        # type: () -> Dict[str, AbstractTab]
+        return {tab_name: None if isinstance(tab, type) else tab for tab_name, tab in self._tabs.iteritems()}
+
     def setEnabled(self, enabled):
         """Have to overwrite this method to enable controls only on the
         current tab!
@@ -197,6 +205,11 @@ class TabViewer(pyxbmct.Group):
             tab.setVisible(True)
             tab.setEnabled(True)
 
+    def get_current_tab_name(self):
+        """:returns: the name of the current tab"""
+        # type: () -> str
+        return self._current_tab
+
     def switch_tab(self, tab_name):
         """Hide and disable the current tab and make the given tab visible and
         usable
@@ -250,4 +263,3 @@ class TabViewer(pyxbmct.Group):
         first_tab = self._current_tab
         self._current_tab = None # Don't try to hide the current tab
         self.switch_tab(first_tab)
-

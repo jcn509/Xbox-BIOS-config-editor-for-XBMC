@@ -40,13 +40,15 @@ def get_config_file_path(filename):
     return os.path.join(TEST_CONFIG_DIR, filename)
 
 
-def get_config_editor_for_file(filename):
+def get_config_editor_for_file(filename, **kwargs):
     """:returns: an IndBiosConfig instance that is using the values specified\
             for all fields that are defined in filename and default values\
             for all the other fields
     """
+    filename = get_config_file_path(filename)
     config_editor = IndBiosConfig()
-    config_editor.read(filename)
+    with open(filename, "r") as config_file:
+        config_editor.read(config_file, **kwargs)
     return config_editor
 
 
@@ -55,16 +57,13 @@ def get_config_editors_for_each_file(filenames):
     return [get_config_editor_for_file(filename) for filename in filenames]
 
 
-ALL_CONFIG_FILES = tuple(
-    [get_config_file_path(file) for file in os.listdir(TEST_CONFIG_DIR)]
-)
+ALL_CONFIG_FILES = tuple(os.listdir(TEST_CONFIG_DIR))
 
 
-@pytest.mark.parametrize("filename", ["valid1.cfg"])
+@pytest.mark.parametrize("filename", ("valid1.cfg", "valid2.cfg"))
 def test_parse_valid_config_no_errors(filename):
-    """Ensures that no exceptions are thrown when parsing a valid confi"""
-    filename = get_config_file_path(filename)
-    IndBiosConfig().read(filename)
+    """Ensures that no exceptions are thrown when parsing a valid config"""
+    get_config_editor_for_file(filename)
 
 
 @pytest.mark.parametrize(
@@ -77,9 +76,7 @@ def test_parse_invalid_field_reset_to_default(
     """Ensures that invalid fields are set to default when read from a file
     if they are supposed to be
     """
-    config = IndBiosConfig()
-    filename = get_config_file_path(filename)
-    config.read(filename, True)
+    config = get_config_editor_for_file(filename, set_invalid_fields_to_default=True)
     # Ensure that this value is reset to default as it was invalid
     assert config.get(field_that_is_reset) == config.defaults()[field_that_is_reset], (
         field_that_is_reset + " reset to default value"
@@ -92,22 +89,20 @@ def test_parse_invalid_field_reset_to_default(
 
 @pytest.mark.parametrize(
     "filename",
-    [
+    (
         "invalid_camera_view.cfg",
         "invalid_model_extension.cfg",
         "invalid_xbe_extension.cfg",
         "invalid_bmp_extension.cfg",
         "invalid_boolean.cfg",
-    ],
+    ),
 )
 def test_parse_invalid(filename):
     """Ensures that an exception is thrown when parsing an invalid config file
     if it is supposed to be
     """
-    config = IndBiosConfig()
     with pytest.raises(ConfigFieldValueError):
-        filename = get_config_file_path(filename)
-        config.read(filename, False)
+        get_config_editor_for_file(filename, set_invalid_fields_to_default=False)    
 
 
 @pytest.mark.parametrize("config", get_config_editors_for_each_file(ALL_CONFIG_FILES))
@@ -120,7 +115,7 @@ def test_config_file_output_no_changes(config):
         written_file_pointer.seek(os.SEEK_SET)
 
         new_config = IndBiosConfig()
-        new_config.readfp(written_file_pointer, True)
+        new_config.read(written_file_pointer, True)
 
         for option in CONFIG_OPTIONS:
             assert config.get(option) == new_config.get(option), (
@@ -212,20 +207,25 @@ def test_set_value_invalid(option, value):
     assert config.get(option) == old_value, "value not changed"
 
 
+
+_PRESET_PARAMETERS = tuple(
+    (get_config_file_path(filename), get_config_editor_for_file(filename), apply_to_fields)
+    for filename in ALL_CONFIG_FILES
+    for apply_to_fields in sub_lists(list(CONFIG_OPTIONS))
+)
+
+
 @pytest.mark.parametrize(
     "preset_filename,preset_config,apply_to_fields",
-    [
-        (filename, get_config_editor_for_file(filename), apply_to_fields)
-        for filename in ALL_CONFIG_FILES
-        for apply_to_fields in sub_lists(list(CONFIG_OPTIONS))
-    ],
+    _PRESET_PARAMETERS
 )
 def test_load_preset(preset_filename, preset_config, apply_to_fields):
     """Ensures that presets can be loaded and the values will only be applied
     to the fields that they are meant to be applied to
     """
     config = IndBiosConfig()
-    config.load_preset(preset_filename, apply_to_fields)
+    with open(preset_filename, "r") as preset_file:
+        config.load_preset(preset_file, apply_to_fields)
 
     # Ideally I would I use subtest here so that if one assert fails the others will still be executed.
     # Unfortunately subtest is not available in pytest. The other alternative would be to use parameterized to
@@ -238,3 +238,34 @@ def test_load_preset(preset_filename, preset_config, apply_to_fields):
             )
         else:
             assert new_field_value == CONFIG_DEFAULTS[field], field + " value unchanged"
+
+
+@pytest.mark.parametrize(
+    "preset_filename,config,fields_to_save",
+    _PRESET_PARAMETERS
+)
+def test_save_preset(preset_filename, config, fields_to_save):
+    """Ensures that presets can be saved and only the values we are interested
+    in will be saved
+    """
+    with tempfile.TemporaryFile() as written_file_pointer:
+        config.save_preset(written_file_pointer, fields_to_save)
+        written_file_pointer.seek(os.SEEK_SET)
+
+        new_config = IndBiosConfig()
+        new_config.read(written_file_pointer)
+
+        # Ideally I would I use subtest here so that if one assert fails the others will still be executed.
+        # Unfortunately subtest is not available in pytest. The other alternative would be to use parameterized to
+        # perform a separate test for each field but that would be really slow.
+        for field in CONFIG_OPTIONS:
+            new_field_value = new_config.get(field)
+            # These fields are tested elsewhere and were causing headaches
+            if field not in config._get_true_if_fields_dont_have_values():
+                if field in fields_to_save:
+                    assert new_field_value == config.get(field), (
+                        field + " value changed to the one from the preset"
+                    )
+                else:
+                    assert new_field_value == CONFIG_DEFAULTS[field], field + " value unchanged"
+

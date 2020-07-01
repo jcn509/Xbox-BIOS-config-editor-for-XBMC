@@ -32,6 +32,6 @@ class Flubber(AbstractIndBiosTab):
             (tab_names.glow, "brightness.png"),
         ))
 
-        sub_tab_viewer = TabViewer(self._config, 6, 1, tabs, tab_icons=tab_icons, vertical_menu_bar=True, tab_switching_set_enabled_callback=self._tab_viewer.set_tab_switching_enabled)
-        self.placeControl(sub_tab_viewer, 1, 0, columnspan=2, rowspan=self.NUM_ROWS-1)
-        self._window.connect(sub_tab_viewer, self._call_value_changed_callback_if_exists)
+        self._sub_tab_viewer = TabViewer(self._config, 5, 1, tabs, tab_icons=tab_icons, vertical_menu_bar=True, tab_switching_set_enabled_callback=self._tab_viewer.set_tab_switching_enabled)
+        self.placeControl(self._sub_tab_viewer, 1, 0, columnspan=2, rowspan=self.NUM_ROWS-1)
+        self._window.connect(self._sub_tab_viewer, self._call_value_changed_callback_if_exists)

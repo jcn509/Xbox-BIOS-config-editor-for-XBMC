@@ -3,12 +3,14 @@ import os
 
 try:
     # typing not available on XBMC4Xbox
-    from typing import Any, Callable, Union
+    from typing import Any, Callable, Tuple, Union
 except:
     pass
 
 import pyxbmct
 import xbmcaddon
+
+from ..image_utils import get_png_aspect_ratio
 
 _addon = xbmcaddon.Addon()
 _addon_path = _addon.getAddonInfo("path")
@@ -22,9 +24,7 @@ class ButtonWithIcon(pyxbmct.Group):
         text,
         icon_filename,
         icon_full_path=False,
-        icon_pad_x=5,
-        icon_pad_y=5,
-        icon_padding_percentage_of_button_size = True,
+        icon_scale = 68,
         set_icon_colour_diffuse_on_set_enabled=True,
         *args,
         **kwargs
@@ -36,28 +36,25 @@ class ButtonWithIcon(pyxbmct.Group):
         text,
         icon,
         icon_full_path=False,
-        icon_pad_x=5,
-        icon_pad_y=5,
-        icon_padding_percentage_of_button_size = True,
+        icon_scale = 68,
         set_icon_colour_diffuse_on_set_enabled=True,
         *args,
         **kwargs
     ):
         """:param text: text label for the button
-        :param icon: either an icon filename or a :pyxbmct.Image:
+        :param icon: either an icon filename or a :pyxbmct.Image: ONLY PNG\
+                IMAGES ARE SUPPORTED!
         :param icon_full_path: if False icon filename is seen as a relative\
                 path from resources/media
-        :param icon_pad_x: gap between the right hand edge of the button and\
-                the icon
-        :param icon_pad_y: gap between the top and bottom edges of the button\
-                and the icon
-        :param icon_padding_percentage_of_button_size: if True then the icon\
-                padding is a percentage of the overall button size rather than
-                a number of pixels
+        :param icon_scale: what percentage of the buttons width/height\
+                (whichever gives the smaller value) should the icon take up
         :param set_icon_colour_diffuse_on_set_enabled: if True, when the\
                 button is disabled the icon will become slightly transparent
+
+        Note: operates under the assumption that:
+            (icon_width / button_width) < (icon_height / button_height)
         """
-        # type: (str, Union[str, pyxbmct.Image], bool, int, int, bool, bool, Any, Any) -> None
+        # type: (str, Union[str, pyxbmct.Image], bool, int, bool, Any, Any) -> None
         super(ButtonWithIcon, self).__init__(1, 2, *args, **kwargs)
 
         self._set_icon_colour_diffuse_on_set_enabled = (
@@ -67,16 +64,19 @@ class ButtonWithIcon(pyxbmct.Group):
         if isinstance(icon, basestring):
             if not icon_full_path:
                 icon = os.path.join(_addon_path, "resources", "media", icon)
+            self._image_aspect_ratio = get_png_aspect_ratio(icon)
             self._icon = pyxbmct.Image(icon, aspectRatio=2)
         else:
+            # Have no way of knowing what the true width and height of the
+            # image is. Just guess that it is square...
+            self._image_aspect_ratio = 1.0
             self._icon = icon  # type: pyxbmct.Image
 
         self._button = pyxbmct.Button(text)
-        self._icon_pad_x = icon_pad_x
-        self._icon_pad_y = icon_pad_y
-        self._icon_padding_percentage_of_button_size = icon_padding_percentage_of_button_size
+        self._icon_scale = icon_scale
 
     def get_button(self):
+        
         """:returns: the button component of the ButtonWithIcon"""
         # type: () -> pyxbmct.Button
         return self._button
@@ -85,23 +85,6 @@ class ButtonWithIcon(pyxbmct.Group):
         """:returns: the icon component of the ButtonWithIcon"""
         # type: () -> pyxbmct.Image
         return self._icon
-
-    def _icon_placed(self, window, row, column, rowspan, columnspan, pad_x, pad_y):
-        """Called after the icon has been placed in a window"""
-        # type: (Any, int, int, int, int, int, int) -> None
-        icon_width = self._icon.getWidth()
-        # Using the min of getWidth and getHeight as the image is square and
-        # this gives the width of the actual image, rather than the width of the
-        # image object which may be very wide
-        icon_side = min(icon_width, self._icon.getHeight())
-
-        button_x, _ = self._button.getPosition()
-        button_width = self._button.getWidth()
-
-        new_icon_x = button_x + button_width - ((icon_side + icon_width) / 2 + pad_x)
-
-        _, icon_y = self._icon.getPosition()
-        self._icon.setPosition(new_icon_x, icon_y)
 
     def setEnabled(self, enabled):
         """Overrides :pyxbmct.Group.setEnabled: (hence the camelcase)
@@ -124,6 +107,8 @@ class ButtonWithIcon(pyxbmct.Group):
         window.connect(self._button, callback)
         return False
 
+
+
     def _placedCallback(self, window, *args, **kwargs):
         """
         Called once the button has been placed
@@ -132,15 +117,29 @@ class ButtonWithIcon(pyxbmct.Group):
 
         self.placeControl(self._button, 0, 0, pad_x=0, pad_y=0, columnspan=2)
 
-        self._icon._placedCallback = self._icon_placed
+        # Previously I used placeControl but it made it very hard to line up
+        # non-square images properly as the image object may have been larger
+        # than the image itself. Therefore, it was difficult to know where the
+        # edges of the actual image were... 
+        self.addControl(self._icon)
 
-        icon_pad_x = self._icon_pad_x
-        icon_pad_y = self._icon_pad_y
-        if self._icon_padding_percentage_of_button_size:
-            button_side = min(self._button.getHeight(), self._button.getWidth())
-            icon_pad_x = int(round((icon_pad_x/100.0) * button_side))
-            icon_pad_y = int(round((icon_pad_y/100.0) * button_side))
+        button_width = self._button.getWidth()
+        button_height = self._button.getHeight()
+        button_side = min(button_width, button_height)
         
-        self.placeControl(
-            self._icon, 0, 1, pad_x=icon_pad_x, pad_y=icon_pad_y
-        )
+        icon_height = button_height * (self._icon_scale / 100.0)
+        icon_width = int(round(icon_height * self._image_aspect_ratio)) 
+        icon_height = int(icon_height)
+
+        self._icon.setWidth(icon_width)
+        self._icon.setHeight(icon_height)
+        
+        button_x, button_y = self._button.getPosition()
+        
+        padding = (button_height - icon_height) / 2
+        icon_x = button_x + button_width - (icon_width + padding)
+        icon_y = button_y + padding
+        self._icon.setPosition(icon_x, icon_y)
+
+
+

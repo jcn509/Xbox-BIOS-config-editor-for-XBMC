@@ -13,7 +13,7 @@ def _create_select_box(mocker, options, **kwargs):
     with warnings.catch_warnings(record=True):
         mocker.patch("pyxbmct.Image")
         mocker.patch("pyxbmct.Button")
-
+        mocker.patch("lib.controls.button_with_icon.get_png_aspect_ratio", return_value=1.0) 
         select_box = SelectBox(options, **kwargs)
 
         # Have to mock the getting and setting of the label...

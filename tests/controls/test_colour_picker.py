@@ -3,7 +3,7 @@ import warnings
 
 import pytest
 
-from lib.controls import ColourPicker
+from lib.controls import ButtonWithIcon, ColourPicker
 from ..utils import create_window_place_control
 
 

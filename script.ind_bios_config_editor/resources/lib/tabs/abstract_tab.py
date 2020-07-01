@@ -1,12 +1,13 @@
 from abc import ABCMeta, abstractmethod
 import pyxbmct
+import xbmc
 from .. import controls
-
+from ..configs import ConfigError
 
 class AbstractTab(pyxbmct.Group):
     __metaclass__ = ABCMeta
 
-    NUM_ROWS = 5
+    NUM_ROWS = 7
 
     def __new__(cls, config, tab_viewer, num_columns=4, default_columnspan=1):
         # Group.__new__ is not responsible for setting number of rows/columns
@@ -22,12 +23,22 @@ class AbstractTab(pyxbmct.Group):
         self._last_preset_filename = None
         self._tab_viewer = tab_viewer
 
+        self._sub_tab_viewer = None # No sub-tabs by default
+
     def reset_to_default(self):
         defaults = self._config.defaults()
         for field in self._fields:
             value = defaults[field]
             self._config.set(field, value)
             self._set_control_value(field, value, False)
+         
+        if self._sub_tab_viewer is not None:
+            # Not ideal, but currently all sub-tabs must exist before they can
+            # be reset
+            self._ensure_all_subtabs_exist()
+            for tab in self._sub_tab_viewer.Values():
+                if tab is not None:
+                    tab.reset_to_default()
     
     def _call_value_changed_callback_if_exists(self, field, value):
         if self._value_changed_callback:
@@ -36,7 +47,17 @@ class AbstractTab(pyxbmct.Group):
 
     def _value_changed(self, field, value):
         self._call_value_changed_callback_if_exists(field, value)
-        self._config.set(field, value)
+        
+        # In almost all cases the controls themselves stop the user from
+        # entering invalid values. However, sometimes it is still possible
+        try:
+            self._config.set(field, value)
+        except ConfigError as e:
+            xbmc.executebuiltin("Notification(Error setting " + field + ", " + str(e) + ")")
+
+            # Revert the change
+            control = self._fields[field]
+            control.set_value(self._config.get(field))
 
     def _connectCallback(self, callback, window):
         self._value_changed_callback = callback
@@ -52,17 +73,62 @@ class AbstractTab(pyxbmct.Group):
         self._last_preset_filename = last_preset_filename
         if self._load_preset_button:
             self._load_preset_button.set_value(last_preset_filename)
+    
+    def _ensure_all_subtabs_exist(self):
+        if self._sub_tab_viewer is not None:
+            current_tab = self._sub_tab_viewer.get_current_tab_name() 
+            for tab_name, tab in self._sub_tab_viewer.get_tabs().iteritems():
+                if tab is None:
+                    # Forcibly create the tabs
+                    self._sub_tab_viewer.switch_tab(tab_name)
+            
+            # May be further levels of nesting
+            for tab in self._sub_tab_viewer.get_tabs().values():
+                self._sub_tab_viewer._ensure_all_subtabs_exist()
+
+            # Go back to the current tab so that the user doesn't notice
+            self._sub_tab_viewer.switch_tab(current_tab) 
+    
+    def _update_all_control_values(self):
+        for field in self._fields:
+            self._set_control_value(field, self.config.get(field))
+        
+        if self._sub_tab_viewer is not None:
+            # Kind of a pain, but need tabs to exist before they can be set
+            self._ensure_all_subtabs_exist()
+            for tab in self._sub_tab_viewer.Values():
+                tab._update_all_control_values()
+
 
     def load_preset(self, filename):
         self._update_last_preset_filename(filename)
-        self._config.load_preset(filename, self._fields)
+        with open(filename, "r") as preset_file:
+            self._config.load_preset(preset_file, self._fields)
+        self._update_all_control_values()                
+
+    def _set_values_for_config(self, config):
         for field in self._fields:
             self._set_control_value(field, self.config.get(field))
+        
+        if self._sub_tab_viewer is not None:
+            # Kind of a pain, but need tabs to exist before they can
+            # be used in this process!
+            self._ensure_all_subtabs_exist()
+            for tab in self._sub_tab_viewer.get_tabs().values():
+                tab._set_values_for_config(config)
+    
+    def _get_all_fields(self, config):
+        sub_tab_fields = []
+        if self._sub_tab_viewer is not None:
+            self._ensure_all_subtabs_exist()
+            [field for field in tab._get_all_fields() for tab in self._sub_tab_viewer.get_tabs().values()]
 
-    def save_preset(self, filename):
+        return self._fields + sub_tab_fields
+
+    def save_preset(self, filename): 
         self._update_last_preset_filename(filename)
         with open(filename, "w") as preset_file:
-            self._config.write(preset_file)
+            self._config.save_preset(preset_file, self._get_all_fields())
 
     def _save_preset_button_pressed(self):
         # Windows imports tabs so this import is delayed until here to avoid circular import issues
@@ -124,7 +190,7 @@ class AbstractTab(pyxbmct.Group):
         if alignment & pyxbmct.ALIGN_RIGHT:
             if columnspan is None:
                 columnspan = self._default_columnspan
-            # There seems to be a bug with right alignment in XBMC4XBOX?
+            # There seems to be a bug with right alignment in XBMC4Xbox?
             # Or maybe it is deliberate?
             column += columnspan
 

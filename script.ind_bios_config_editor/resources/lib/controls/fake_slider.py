@@ -223,7 +223,9 @@ class FakeSlider(AbstractControl, pyxbmct.Group):
 
         # This is a bodge to ensure that window.autoNavigation works
         # properly for controls above or below the slider.
-        # nib should never be accessed from the outside anyway...
+        # nib should never be accessed from outside this class anyway...
+        # Other controls should be able to navigate up or down to nib
+        # so long as the slider is above or below them, not just if the nib is
         self._nib.getWidth = lambda: width
         self._nib.getHeight = lambda: height
         self._nib.getPosition = lambda: (x, y)

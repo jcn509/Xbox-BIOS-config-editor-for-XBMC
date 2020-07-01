@@ -48,7 +48,8 @@ class AbstractConfigEditor(pyxbmct.AddonDialogWindow):
         self._num_rows = tab_rows + 1
         self._num_columns = 1
         self._config = self._create_config()
-        self._config.read(config_filename)
+        with open(config_filename, "r") as config_file:
+            self._config.read(config_file)
         self._unsaved_changes = False
 
         self._last_preset_filename = None

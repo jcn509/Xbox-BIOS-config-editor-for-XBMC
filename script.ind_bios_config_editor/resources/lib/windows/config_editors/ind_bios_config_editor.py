@@ -12,19 +12,19 @@ class IndBiosConfigEditor(AbstractConfigEditor):
 
     def _create_tab_data(self):
         # type: () -> TabConfig
-        tab_names = namedtuple("TabNames", ("basic", "boot_settings", "flubber", "x_screen", "advanced"))("Basic", "Boot Settings", "Flubber", "X Screen", "Advanced")
+        tab_names = namedtuple("TabNames", ("basic", "boot", "flubber", "x_screen", "advanced"))("Basic", "Boot", "Flubber", "X Screen", "Advanced")
       
         return TabConfig(
             OrderedDict((
                 (tab_names.basic, ind_bios.Basic),
-                (tab_names.boot_settings, ind_bios.BootSettings),
+                (tab_names.boot, ind_bios.Boot),
                 (tab_names.flubber, ind_bios.Flubber),
                 (tab_names.x_screen, ind_bios.XScreen),
                 (tab_names.advanced, ind_bios.Advanced)
             )),
             OrderedDict((
                 (tab_names.basic, "settings.png"),
-                (tab_names.boot_settings, "dashboard.png"),
+                (tab_names.boot, "dashboard.png"),
                 (tab_names.flubber, "video_camera_round.png"),
                 (tab_names.x_screen, "close.png"),
                 (tab_names.advanced, "option_bar_settings.png")

@@ -10,7 +10,7 @@ from pyxbmct import Button
 from lib.tabs import TabViewer
 from lib.configs import IndBiosConfig
 from lib.controls import ButtonWithIcon
-from lib.tabs.ind_bios import Basic, BootSettings
+from lib.tabs.ind_bios import Basic, Boot
 from ..utils import create_window_place_control
 
 def _create_tab_viewer(mocker, config, tabs, **kwargs):
@@ -36,7 +36,7 @@ def tabs_dict(mocker):
     mocker.patch("lib.controls.RadioButton")
     mocker.patch("lib.controls.SelectBox")
 
-    tabs = OrderedDict((("Basic", Basic), ("Boot settings", BootSettings)))
+    tabs = OrderedDict((("Basic", Basic), ("Boot settings", Boot)))
     for tab in tabs.values():
         tab.setEnabled = mocker.Mock()
         tab.setVisible = mocker.Mock()
@@ -62,7 +62,7 @@ def test_create_and_place(config, tabs_dict, mocker, tab_icons):
     create_window_place_control(tab_viewer)
     assert isinstance(tabs_dict["Basic"], Basic), "Basic tab was created"
     assert isinstance(tabs_dict["Boot settings"], type), "Boot settings tab not created"
-    assert not isinstance(tabs_dict["Boot settings"], BootSettings), "Boot settings tab not created"
+    assert not isinstance(tabs_dict["Boot settings"], Boot), "Boot settings tab not created"
     
 
 @pytest.mark.parametrize(
@@ -85,7 +85,7 @@ def test_switch_tab(config, tabs_dict, mocker, tab_icons):
 
     tab_viewer.switch_tab("Boot settings")
  
-    assert isinstance(tabs_dict["Boot settings"], BootSettings), "Boot settings tab created"
+    assert isinstance(tabs_dict["Boot settings"], Boot), "Boot settings tab created"
     tabs_dict["Basic"].setEnabled.assert_called_with(False)
     tabs_dict["Basic"].setVisible.assert_called_with(False)
    
